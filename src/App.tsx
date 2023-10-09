@@ -2,6 +2,8 @@ import React from 'react';
 import logo from './logo.svg';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Navbar from './Component/Navbar'
+import Sidebox from './Component/Sidebox'
+import Chat from './Component/Chat'
 import Home from './Page/Home';
 import Profile from './Page/Profile';
 import './App.css';
@@ -25,6 +27,8 @@ function App() {
       </header> */}
       {/* <ContextProvider> */}
         <Navbar />
+        <Sidebox />
+        <Chat />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
