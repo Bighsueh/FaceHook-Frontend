@@ -76,7 +76,7 @@ function ChatRoom() {
             <div className="mx-2 h-full bg-gray-100 rounded-full">
               <input
                 placeholder="Aa"
-                className="h-full bg-gray-100 focus:outline-none text-lg"
+                className="h-full bg-transparent ml-4 focus:outline-none text-lg"
               />
             </div>
           </div>
