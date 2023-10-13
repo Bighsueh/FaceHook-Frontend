@@ -4,6 +4,7 @@ import Sidebox from './Component/Sidebox'
 import Chat from './Component/Chat'
 import Home from './Page/Home';
 import Profile from './Page/Profile';
+import ChatRoom from './Component/ChatRoom';
 
 
 function App() {
@@ -26,7 +27,7 @@ function App() {
       {/* <ContextProvider> */}
         <Navbar />
         <Sidebox />
-        <Chat />
+        <ChatRoom />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
