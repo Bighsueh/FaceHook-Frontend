@@ -1,5 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { useContext } from "react";
+import Sidebox from './Component/Sidebox'
+import Chat from './Component/Chat'
 import Home from './Page/Home';
 import Profile from './Page/Profile';
 import Login from './Page/Login';
