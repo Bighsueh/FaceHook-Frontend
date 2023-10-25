@@ -1,6 +1,61 @@
 import React from "react";
+import { useState, KeyboardEvent } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { io, Socket } from "socket.io-client";
+
+interface ChatLogItem {
+  user_uuid: string;
+  chatroom_uuid: string;
+  message: string;
+  timestamp: number;
+}
+
+interface ServerToClientEvents {
+  receiveMessage: (data: ChatLogItem) => void;
+}
+
+interface ClientToServerEvents {
+  hello: () => void;
+  sendMessage: (data: ChatLogItem) => void;
+}
+
+// please note that the types are reversed
+const socketEndpoint: string = "ws://localhost:8080";
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(socketEndpoint);
+
+const user_uuid: string = uuidv4();
+
+
+
+const handleEnterPress = (event: KeyboardEvent<HTMLInputElement>) => {
+  if (event.key === 'Enter') {
+    
+    const value = event.currentTarget.value;
+    
+    socket.emit("sendMessage", {
+      user_uuid: user_uuid,
+      chatroom_uuid: user_uuid,
+      message: value,
+      timestamp: Date.now() // Use the current timestamp as a number
+    });
+
+    console.log(`send => user_uuid: ${user_uuid}, message: ${value}`);
+
+    event.currentTarget.value = '';
+  }
+};
+
+
 
 function ChatRoom() {
+  const [chatLog, setChatLog] = useState<ChatLogItem[]>([]);
+
+  socket.on("receiveMessage", (data) => {
+    // const { user_uuid, chatroom_uuid, message, timestamp } = data;
+    setChatLog([...chatLog,data]);
+    console.log(`receive => user_uuid: ${data.user_uuid}, message: ${data.message}`);
+  });
+
   return (
     <div className="absolute bottom-0 right-0 flex">
       <div className="mx-6 w-80 h-96  border border-2 rounded-t-lg flex flex-col">
@@ -63,12 +118,23 @@ function ChatRoom() {
           </div>
         </div>
         <div className="fixed bottom-14 w-80 px-2">
-          <div className="chat chat-start">
+        {chatLog.map((item, index) => (
+            item.user_uuid !== user_uuid ? (
+              <div key={index} className="chat chat-start">
+                <div className="chat-bubble bg-gray-200 text-black">{item.message}</div>
+              </div>
+            ): (
+              <div key={index} className="chat chat-end">
+                <div className="chat-bubble bg-blue-400 text-white">{item.message}</div>
+              </div>
+            )
+          ))}
+          {/* <div className="chat chat-start">
             <div className="chat-bubble bg-gray-200 text-black">今天天氣晴!</div>
           </div>
           <div className="chat chat-end">
             <div className="chat-bubble bg-blue-400 text-white">我想要吃蛋餅</div>
-          </div>
+          </div> */}
         </div>
 
         <div className="fixed bottom-0 w-80 h-12 grid grid-cols-6">
@@ -76,7 +142,8 @@ function ChatRoom() {
             <div className="mx-2 h-full bg-gray-100 rounded-full">
               <input
                 placeholder="Aa"
-                className="h-full bg-gray-100 focus:outline-none text-lg"
+                onKeyPress={handleEnterPress}
+                className="h-full bg-transparent ml-4 focus:outline-none text-lg"
               />
             </div>
           </div>
