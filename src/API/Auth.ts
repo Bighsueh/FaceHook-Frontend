@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 
-const API_URL = "http://localhost:5050/auth";
+const API_URL = "http://localhost:8080/auth";
 
 class AuthService {
 
@@ -41,7 +41,7 @@ class AuthService {
   getCurrentUser(): Promise<AxiosResponse> {
     const token = this.getToken();
     const headers = token ? { Authorization: token } : {};
-    return axios.get(`http://localhost:5050/user`, { headers });
+    return axios.get(`http://localhost:8080/user`, { headers });
   }
   
 

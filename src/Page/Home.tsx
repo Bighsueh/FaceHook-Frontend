@@ -1,7 +1,7 @@
 import React from 'react';
 import Post from '../Component/Post';
 import Feed from '../Component/Feed';
-
+import ChatRoom from '../Component/ChatRoom';
 
 function Home() {
   return (
@@ -10,6 +10,8 @@ function Home() {
       <div className='mt-10 ml-12'>
           <Post />
           <Feed />
+          <ChatRoom />
+
       </div>
     </div>
 
