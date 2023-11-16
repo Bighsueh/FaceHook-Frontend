@@ -2,17 +2,20 @@ import React, { useEffect } from "react";
 import { useState, KeyboardEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { io, Socket } from "socket.io-client";
+import { isConstructorDeclaration } from "typescript";
 
+// 前後端的方法要一樣
 interface ServerToClientEvents {
   onMessageReceived: (data: ChatLogItem) => void;
 }
-
+// 前後端的方法要一樣
 interface ClientToServerEvents {
   hello: () => void;
   onMessageSent: (data: ChatLogItem) => void;
-  onClientConnected :(data:ChatLogItem) =>void;
+  onClientConnected: (data: ChatLogItem) => void;
 }
 
+// 還沒弄chatroom id 不知道怎麼弄 煩死
 interface ChatLogItem {
   user_uuid: string;
   // chatroom_uuid: string;
@@ -20,15 +23,27 @@ interface ChatLogItem {
   timestamp: number;
 }
 
-const user_uuid: string = uuidv4();
+//const user_uuid: string = uuidv4();
 
 function ChatRoom() {
+  // 取得jwt中的uid
+  const jwt = localStorage.getItem('user') as any
+  // 麻煩的拿到裡面的uid
+  const token = JSON.parse(jwt).token
+  const [header, payload] = token.slice(4,).split('.');
+  const decodedPayload = JSON.parse(atob(payload));
+
+
+  const user_uuid: string = decodedPayload.uid
+  console.log(user_uuid)
 
   const [chatLog, setChatLog] = useState<ChatLogItem[]>([]);
   const [ws, setWS] = useState<Socket<ServerToClientEvents, ClientToServerEvents> | undefined>(undefined);
-  useEffect(()=>{
+  useEffect(() => {
+    // 把jwt做為參數傳到後端讓socket記錄下來 紀好之後發現好像沒啥用
+    // 放到useEffect代表只會連線一次 
     const token = localStorage.getItem('user') as string
-    setWS(io('http://localhost:8080',{
+    setWS(io('http://localhost:8080', {
       query: {
         token: JSON.parse(token).token,  // Include your JWT token here
       },
@@ -39,63 +54,65 @@ function ChatRoom() {
       console.log('disconnect')
       ws?.disconnect();
     };
-  },[])
+  }, [])
 
-  useEffect(()=>{
+  useEffect(() => {
     console.log(ws)
-    if(ws){
+    // 連成功後就開始監聽
+    if (ws) {
       console.log('connect success')
-      ws.on("onMessageReceived" ,(data) => {
-        // const { user_uuid, chatroom_uuid, message, timestamp } = data;
-        setChatLog([...chatLog,data]);
-        console.log(`receive => message: ${data.message}`);
-    })
-  }
+      ws.on("onMessageReceived", (data) => {
+        if (data.user_uuid !== user_uuid) {
+          console.log(chatLog)
+          // const { user_uuid, chatroom_uuid, message, timestamp } = data;
+          //setChatLog([...chatLog, data]);
+          setChatLog(prevState => [...prevState, data]);
+          console.log(data)
+          console.log(`receive => message: ${data.message}`);
+        }
 
-  },[ws])
+      })
+    }
 
-  const connectTest =()=>{
-     console.log('pushh')
-     const data = '233242322'
-     
-     ws?.emit("onMessageSent", { 
-      user_uuid: '1',
-      message: data,
-      timestamp: Date.now()
-     })
-  }
+  }, [ws])
+
+
   // socket.on("onMessageReceived", (data) => {
   //   // const { user_uuid, chatroom_uuid, message, timestamp } = data;
   //   setChatLog([...chatLog,data]);
   //   console.log(`receive => message: ${data.message}`);
-  
+
   //   //console.log(`receive => user_uuid: ${data.user_uuid}, message: ${data.message}`);
   // });
 
 
-const handleEnterPress = (event: KeyboardEvent<HTMLInputElement>) => {
-  if (event.key === 'Enter') {
-    
-    const value = event.currentTarget.value;
-    const data = {
-      user_uuid: '1',
-      // chatroom_uuid: user_uuid,
-      message: value,
-      timestamp: Date.now() 
+  const handleEnterPress = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+
+      const value = event.currentTarget.value;
+      const data = {
+        user_uuid: user_uuid,
+        // chatroom_uuid: user_uuid,
+        message: value,
+        timestamp: Date.now()
+      }
+      ws?.emit("onMessageSent", {
+        user_uuid: user_uuid,
+        // chatroom_uuid: user_uuid,
+        message: value,
+        timestamp: Date.now()
+      });
+
+      setChatLog([...chatLog, data])
+
+      console.log(`send => user_uuid: ${user_uuid}, message: ${value}`);
+
+      event.currentTarget.value = '';
     }
-    ws?.emit("onMessageSent", { 
-      user_uuid: '1',
-    // chatroom_uuid: user_uuid,
-    message: value,
-    timestamp: Date.now()  });
-    
-    setChatLog([...chatLog, data])
-
-    console.log(`send => user_uuid: ${user_uuid}, message: ${value}`);
-
-    event.currentTarget.value = '';
-  }
-};
+  };
+  useEffect(() => {
+    console.log(chatLog)
+  }, [chatLog])
 
   return (
     <div className="absolute bottom-0 right-0 flex">
@@ -159,16 +176,16 @@ const handleEnterPress = (event: KeyboardEvent<HTMLInputElement>) => {
           </div>
         </div>
         <div className="fixed bottom-14 w-80 px-2">
-        {chatLog.map((item, index) => (
-            // item.user_uuid !== user_uuid ? (
-            //   <div key={index} className="chat chat-start">
-            //     <div className="chat-bubble bg-gray-200 text-black">{item.message}</div>
-            //   </div>
-            // ): (
+          {chatLog.map((item, index) => (
+            item.user_uuid !== user_uuid ? (
+              <div key={index} className="chat chat-start">
+                <div className="chat-bubble bg-gray-200 text-black">{item.message}</div>
+              </div>
+            ) : (
               <div key={index} className="chat chat-end">
                 <div className="chat-bubble bg-blue-400 text-white">{item.message}</div>
               </div>
-          //  )
+            )
           ))}
           {/* <div className="chat chat-start">
             <div className="chat-bubble bg-gray-200 text-black">今天天氣晴!</div>
@@ -204,7 +221,7 @@ const handleEnterPress = (event: KeyboardEvent<HTMLInputElement>) => {
       </div>
       <div className="w-20 relative">
         <div className="fixed bottom-0 w-20 h-20 p-2">
-          <div className="w-full h-full border rounded-full p-4 bg-blue-400" onClick={connectTest}>
+          <div className="w-full h-full border rounded-full p-4 bg-blue-400" >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-full h-full text-white">
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
             </svg>
