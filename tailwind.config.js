@@ -7,11 +7,14 @@ module.exports = {
     colors:{
       mistblue:'#7AAFFF',
       lightblue:'#F4FAFF',
+      facebookblue:'#0865FE',
+      friendblue:'#EBF5FF',
     },
     extend: {},
   },
-  plugins: [require("daisyui")],
-  daisyui:{
-    darkTheme: "light"
-  }
+  plugins: [],
+  // plugins: [require("daisyui")],
+  // daisyui:{
+  //   darkTheme: "light"
+  // }
 }

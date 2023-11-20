@@ -1,6 +1,8 @@
 import React, { useState,useEffect ,useContext} from 'react';
+import UserService from '../API/User';
 import AuthService from '../API/Auth';
 import { Context } from '../Contexts/Context';
+import { Link, useNavigate } from 'react-router-dom';
 
 
 interface ToastMessage {
@@ -10,6 +12,8 @@ interface ToastMessage {
 }
 
 function LoginAndRegister() {
+
+  const navigate = useNavigate();
   
   const { currentUser,setCurrentUser } = useContext(Context)!;
 
@@ -51,8 +55,9 @@ function LoginAndRegister() {
       const response = await AuthService.login(email, password);
       if (response) {
         localStorage.setItem('user', JSON.stringify(response.data));
-        const currentUserData = await AuthService.getCurrentUser(); 
+        const currentUserData = await UserService.getCurrentUser(); 
         setCurrentUser(currentUserData.data);
+        navigate("/")
         window.location.reload()
       } else {
         showToastMessage('帳號或密碼錯誤', 'error');
