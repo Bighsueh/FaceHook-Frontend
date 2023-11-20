@@ -4,6 +4,7 @@ import Sidebox from './Component/Sidebox'
 import Chat from './Component/Chat'
 import Home from './Page/Home';
 import Profile from './Page/Profile';
+import ChatRoom from './Component/ChatRoom';
 import Login from './Page/Login';
 import Layout1 from './Page/Layout/layout1';
 import Layout2 from './Page/Layout/layout2';
@@ -35,6 +36,7 @@ function App() {
        </header> */}
     
       <ContextProvider>
+
         <BrowserRouter>
           <Routes>
             {(currentUser !== null && currentUser !== '') ? (

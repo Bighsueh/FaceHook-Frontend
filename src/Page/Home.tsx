@@ -1,6 +1,7 @@
 import React from 'react';
 import Feed from '../Component/Feed';
 import CreatePost from '../Component/createPost';
+import ChatRoom from '../Component/ChatRoom';
 
 function Home() {
   return (
@@ -9,6 +10,7 @@ function Home() {
       <div className="flex-row row-start-1 col-span-7 col-start-2 space-y-4">
         <CreatePost/>
         <Feed />
+        <ChatRoom />
       </div>
     </div>
 
