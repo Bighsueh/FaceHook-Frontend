@@ -4,15 +4,6 @@ const API_URL = "http://localhost:5050/auth";
 
 class AuthService {
 
-  private getToken(): string | null {
-    const user = localStorage.getItem("user");
-    if (user) {
-      const token = JSON.parse(user).token;
-      return token;
-    }
-    return null;
-  }
-
   register(username: string,email: string,password: string): Promise<AxiosResponse> {
     return axios.post(API_URL + "/register",{
       username,
@@ -36,14 +27,6 @@ class AuthService {
     }
     return null; 
   }
-
-  // 取得使用者資訊的方法
-  getCurrentUser(): Promise<AxiosResponse> {
-    const token = this.getToken();
-    const headers = token ? { Authorization: token } : {};
-    return axios.get(`http://localhost:5050/user`, { headers });
-  }
-  
 
 }
 
