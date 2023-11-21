@@ -4,18 +4,17 @@ import { v4 as uuidv4 } from 'uuid';
 import { io, Socket } from "socket.io-client";
 import { isConstructorDeclaration } from "typescript";
 
-// 前後端的方法要一樣
+
 interface ServerToClientEvents {
   onMessageReceived: (data: ChatLogItem) => void;
 }
-// 前後端的方法要一樣
+
 interface ClientToServerEvents {
   hello: () => void;
   onMessageSent: (data: ChatLogItem) => void;
   onClientConnected: (data: ChatLogItem) => void;
 }
 
-// 還沒弄chatroom id 不知道怎麼弄 煩死
 interface ChatLogItem {
   user_uuid: string;
   // chatroom_uuid: string;
@@ -23,12 +22,10 @@ interface ChatLogItem {
   timestamp: number;
 }
 
-//const user_uuid: string = uuidv4();
 
 function ChatRoom() {
   // 取得jwt中的uid
   const jwt = localStorage.getItem('user') as any
-  // 麻煩的拿到裡面的uid
   const token = JSON.parse(jwt).token
   const [header, payload] = token.slice(4,).split('.');
   const decodedPayload = JSON.parse(atob(payload));
@@ -40,8 +37,6 @@ function ChatRoom() {
   const [chatLog, setChatLog] = useState<ChatLogItem[]>([]);
   const [ws, setWS] = useState<Socket<ServerToClientEvents, ClientToServerEvents> | undefined>(undefined);
   useEffect(() => {
-    // 把jwt做為參數傳到後端讓socket記錄下來 紀好之後發現好像沒啥用
-    // 放到useEffect代表只會連線一次 
     const token = localStorage.getItem('user') as string
     setWS(io('http://localhost:8080', {
       query: {
