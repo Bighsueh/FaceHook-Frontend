@@ -16,8 +16,8 @@ interface ClientToServerEvents {
 }
 
 interface ChatLogItem {
-  user_uuid: string;
-  // chatroom_uuid: string;
+  userUuid: string;
+  // chatroomUuid: string;
   message: string;
   timestamp: number;
 }
@@ -31,8 +31,8 @@ function ChatRoom() {
   const decodedPayload = JSON.parse(atob(payload));
 
 
-  const user_uuid: string = decodedPayload.uid
-  console.log(user_uuid)
+  const userUuid: string = decodedPayload.uid
+  console.log(userUuid)
 
   const [chatLog, setChatLog] = useState<ChatLogItem[]>([]);
   const [ws, setWS] = useState<Socket<ServerToClientEvents, ClientToServerEvents> | undefined>(undefined);
@@ -57,9 +57,9 @@ function ChatRoom() {
     if (ws) {
       console.log('connect success')
       ws.on("onMessageReceived", (data) => {
-        if (data.user_uuid !== user_uuid) {
+        if (data.userUuid !== userUuid) {
           console.log(chatLog)
-          // const { user_uuid, chatroom_uuid, message, timestamp } = data;
+          // const { userUuid, chatroomUuid, message, timestamp } = data;
           //setChatLog([...chatLog, data]);
           setChatLog(prevState => [...prevState, data]);
           console.log(data)
@@ -73,11 +73,11 @@ function ChatRoom() {
 
 
   // socket.on("onMessageReceived", (data) => {
-  //   // const { user_uuid, chatroom_uuid, message, timestamp } = data;
+  //   // const { userUuid, chatroomUuid, message, timestamp } = data;
   //   setChatLog([...chatLog,data]);
   //   console.log(`receive => message: ${data.message}`);
 
-  //   //console.log(`receive => user_uuid: ${data.user_uuid}, message: ${data.message}`);
+  //   //console.log(`receive => userUuid: ${data.userUuid}, message: ${data.message}`);
   // });
 
 
@@ -86,21 +86,21 @@ function ChatRoom() {
 
       const value = event.currentTarget.value;
       const data = {
-        user_uuid: user_uuid,
-        // chatroom_uuid: user_uuid,
+        userUuid: userUuid,
+        // chatroomUuid: userUuid,
         message: value,
         timestamp: Date.now()
       }
       ws?.emit("onMessageSent", {
-        user_uuid: user_uuid,
-        // chatroom_uuid: user_uuid,
+        userUuid: userUuid,
+        // chatroomUuid: userUuid,
         message: value,
         timestamp: Date.now()
       });
 
       setChatLog([...chatLog, data])
 
-      console.log(`send => user_uuid: ${user_uuid}, message: ${value}`);
+      console.log(`send => userUuid: ${userUuid}, message: ${value}`);
 
       event.currentTarget.value = '';
     }
@@ -172,7 +172,7 @@ function ChatRoom() {
         </div>
         <div className="fixed bottom-14 w-80 px-2">
           {chatLog.map((item, index) => (
-            item.user_uuid !== user_uuid ? (
+            item.userUuid !== userUuid ? (
               <div key={index} className="chat chat-start">
                 <div className="chat-bubble bg-gray-200 text-black">{item.message}</div>
               </div>
