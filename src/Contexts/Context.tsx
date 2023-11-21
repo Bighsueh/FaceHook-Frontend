@@ -1,5 +1,5 @@
 import { PropsWithChildren, createContext, useState, useEffect } from 'react';
-import AuthService from '../API/Auth'
+import UserService from '../API/User';
 
 type ContextType = {
   theme: string;
@@ -20,7 +20,7 @@ export const ContextProvider = ({ children }: PropsWithChildren<{}>) => {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const response = await AuthService.getCurrentUser();
+        const response = await UserService.getCurrentUser();
         const user = response.data;
         setCurrentUser(user);
       } catch (error) {
@@ -28,7 +28,7 @@ export const ContextProvider = ({ children }: PropsWithChildren<{}>) => {
       }
     };
 
-    fetchUserInfo();
+    fetchUserInfo();    
   }, []);
 
 
