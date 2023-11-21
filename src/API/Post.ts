@@ -77,6 +77,12 @@ class PostService {
     const headers = token ? { Authorization: token } : {};
     return axios.delete(`${API_URL}/unlikecomment/${commentId}`, { headers });
   }
+  searchPosts(keyword: string): Promise<AxiosResponse> {
+    const token = this.getToken();
+    const headers = token ? { Authorization: token } : {};
+    const params = { q: keyword }; 
+    return axios.post(`${API_URL}/search`, null, { headers, params });
+  }
 }
 
 export default new PostService();
