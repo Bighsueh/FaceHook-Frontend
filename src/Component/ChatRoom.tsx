@@ -11,14 +11,15 @@ interface ServerToClientEvents {
 // 前後端的方法要一樣
 interface ClientToServerEvents {
   hello: () => void;
+  //onMessageSent: (data: ChatLogItem) => void;
   onMessageSent: (data: ChatLogItem) => void;
-  onClientConnected: (data: ChatLogItem) => void;
+  onClientConnected :(data:ChatLogItem) =>void;
 }
 
 // 還沒弄chatroom id 不知道怎麼弄 煩死
 interface ChatLogItem {
   user_uuid: string;
-  // chatroom_uuid: string;
+  chatroom_uuid: string;
   message: string;
   timestamp: number;
 }
@@ -92,16 +93,17 @@ function ChatRoom() {
       const value = event.currentTarget.value;
       const data = {
         user_uuid: user_uuid,
-        // chatroom_uuid: user_uuid,
+        chatroom_uuid: '1',
         message: value,
         timestamp: Date.now()
       }
       ws?.emit("onMessageSent", {
         user_uuid: user_uuid,
-        // chatroom_uuid: user_uuid,
+        chatroom_uuid: '1',
         message: value,
         timestamp: Date.now()
       });
+      //ws?.emit("onMessageSent", data );
 
       setChatLog([...chatLog, data])
 
