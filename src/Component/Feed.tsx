@@ -24,7 +24,7 @@ export default function MainPost({userId}:any) {
     const [likedComments, setLikedComments] = useState<{ [postId: number]: boolean }>({});
     const [visibleComments, setVisibleComments] = useState<number>(2);
     const [shareOption, setShareOption] = useState<string>("所有人");
-    const { content,setContent,currentUser,setCurrentUser } = useContext(Context)!;
+    const { content,setContent,currentUser,setCurrentUser,ws } = useContext(Context)!;
 
   useEffect(() => {
     const fetchData = async (getDataPromise:any) => {
@@ -56,8 +56,10 @@ export default function MainPost({userId}:any) {
     };
     const handleSubmitComment = () => {
         PostService.postComment(postId, content)
-        .then(() => {
-            window.alert("新增成功");
+        .then((data) => {
+            ws?.emit("onCommentSend", data.data)
+            alert("新增成功");
+            
             setContent("")
         })
         .catch((e) => {
@@ -115,8 +117,11 @@ export default function MainPost({userId}:any) {
             });
     };
     const handleLike = (postId: number) => {
+       
         PostService.likePost(postId)
-            .then(() => {
+            .then((data) => {
+                console.log(data.data)
+                ws?.emit("onLikeSend", data.data)
                 setLikedPosts((prevState) => ({
                     ...prevState,
                     [postId]: true,
@@ -182,7 +187,7 @@ export default function MainPost({userId}:any) {
           const isLiked = likedPosts[data.id] || false;
 
         return(
-          <div id="postcard">
+          <div id="postcard" key={data.id}>
             <div className="w-full shadow-fb rounded bg-white border border-gray-300 p-4">
               <div className="flex justify-between items-center">
                 <div className="flex items-center">
@@ -329,7 +334,7 @@ export default function MainPost({userId}:any) {
                   <button className="w-1/2 flex items-center justify-center focus:outline-none" onClick={() => handleLike(data.id)}>
                     {/* <SLike /> */}
                     <svg className="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.008 8.714c1-.097 1.96-.45 2.792-1.028a25.112 25.112 0 0 0 4.454-5.72 1.8 1.8 0 0 1 .654-.706 1.742 1.742 0 0 1 1.65-.098 1.82 1.82 0 0 1 .97 1.128c.075.248.097.51.065.767l-1.562 4.629M4.008 8.714H1v9.257c0 .273.106.535.294.728a.99.99 0 0 0 .709.301h1.002a.99.99 0 0 0 .71-.301c.187-.193.293-.455.293-.728V8.714Zm8.02-1.028h4.968c.322 0 .64.08.925.232.286.153.531.374.716.645a2.108 2.108 0 0 1 .242 1.883l-2.36 7.2c-.288.813-.48 1.354-1.884 1.354-2.59 0-5.39-1.06-7.504-1.66"/>
+                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.008 8.714c1-.097 1.96-.45 2.792-1.028a25.112 25.112 0 0 0 4.454-5.72 1.8 1.8 0 0 1 .654-.706 1.742 1.742 0 0 1 1.65-.098 1.82 1.82 0 0 1 .97 1.128c.075.248.097.51.065.767l-1.562 4.629M4.008 8.714H1v9.257c0 .273.106.535.294.728a.99.99 0 0 0 .709.301h1.002a.99.99 0 0 0 .71-.301c.187-.193.293-.455.293-.728V8.714Zm8.02-1.028h4.968c.322 0 .64.08.925.232.286.153.531.374.716.645a2.108 2.108 0 0 1 .242 1.883l-2.36 7.2c-.288.813-.48 1.354-1.884 1.354-2.59 0-5.39-1.06-7.504-1.66"/>
                     </svg>
                     <span className="ml-2">Like</span>
                   </button>
@@ -340,7 +345,7 @@ export default function MainPost({userId}:any) {
                 <button className="w-1/2 flex items-center justify-center focus:outline-none">
                   {/* <CommentButton /> */}
                   <svg className="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 18">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 5h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-2v3l-4-3H8m4-13H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2v3l4-3h4a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1Z"/>
+                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 5h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-2v3l-4-3H8m4-13H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2v3l4-3h4a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1Z"/>
                   </svg>
                   <span className="ml-2">Comment</span>
                 </button>

@@ -19,12 +19,20 @@ interface UserProfile {
 function Friend() {
 
   const {userId}:any = useParams();
-  const { currentUser, setCurrentUser } = useContext(Context)!;
+  const { currentUser, setCurrentUser,ws } = useContext(Context)!;
   const [friend, setFriend] = useState<any[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [commonFriendsMap, setCommonFriendsMap] = useState<Record<number, any>>({});
   const [commonFriends, setCommonFriends] = useState<any[]>([]);
 
+  useEffect(()=>{
+   console.log(ws)
+   if(ws){
+    ws.on("onFriendUpdate",() =>{
+      window.location.reload()
+    })
+   }
+  },[ws])
 
   useEffect(() => {
     UserService.getUserProfile(userId)

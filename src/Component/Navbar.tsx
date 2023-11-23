@@ -3,16 +3,53 @@ import { Link, useNavigate } from 'react-router-dom';
 import AuthService from '../API/Auth'
 import UserService from '../API/User'
 import { Context } from '../Contexts/Context';
+import { io } from "socket.io-client";
 
 
 function Navbar() {
   
   const navigate = useNavigate();
 
-  const { currentUser,setCurrentUser } = useContext(Context)!;
+  const { currentUser,setCurrentUser,ws, setWs } = useContext(Context)!;
   const [keyword, setKeyword] = useState('');
   const [invitation,setInvitation] = useState<any[]>([]);
   const [reloadInvitations, setReloadInvitations] = useState(false);
+
+
+  useEffect(() => {
+    // 把jwt做為參數傳到後端讓socket記錄下來 紀好之後發現好像沒啥用
+    // 放到useEffect代表只會連線一次 
+    const token = localStorage.getItem('user') as string
+    setWs(io('http://localhost:8080', {
+      query: {
+        token: JSON.parse(token).token,  // Include your JWT token here
+      },
+    }))
+
+    //websocket disconnect
+    return () => {
+      console.log('disconnect')
+      ws?.disconnect();
+    };
+  }, [])
+
+  useEffect(() => {
+    console.log(ws)
+    // 連成功後就開始監聽
+    if (ws) {
+      console.log('connect success')
+      ws.on("onFriendUpdate",() =>{
+        UserService.getFriendInvitations(currentUser.id)
+    .then((data)=>{
+      setInvitation(data.data)
+    })
+    .catch((e)=>{
+      console.log(e)
+    })
+      })
+    }
+
+  }, [ws])
 
   const handleLogout = () => {
     AuthService.logout();
@@ -44,7 +81,8 @@ function Navbar() {
   const handleAddFriend = (userId:any) => {
     UserService.confirmFriend(userId)
     .then((data) => {
-      // console.log('成功成為好友')
+      ws?.emit("onFriendInvite", data.data)
+      console.log('成功成為好友')
       setReloadInvitations(true);
     })
     .catch((e) => {
@@ -55,6 +93,7 @@ function Navbar() {
   const handleDelFriendInvitation = (friendId:any) => {
     UserService.removeFriendInvite(friendId)
     .then((data) => {
+      ws?.emit("onFriendInvite")
       // console.log('成功刪除好友邀請')
       setReloadInvitations(true);
     })
