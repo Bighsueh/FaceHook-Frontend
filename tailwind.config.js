@@ -7,6 +7,7 @@ module.exports = {
     colors:{
       mistblue:'#7AAFFF',
       lightblue:'#F4FAFF',
+      hoverLightBlue: '#eff6ff',
       facebookblue:'#0865FE',
       friendblue:'#EBF5FF',
     },
