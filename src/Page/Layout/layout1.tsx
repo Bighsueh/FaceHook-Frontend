@@ -5,7 +5,7 @@ import Sidebox from '../../Component/Sidebox';
 
 function Layout1() {
   return (
-    <div className='flex flex-col h-screen'>
+    <div className='flex flex-col h-screen bg-white'>
       <div className='fixed top-0 left-0 right-0 z-10'>
         <Navbar/>
       </div>
