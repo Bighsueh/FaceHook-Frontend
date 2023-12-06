@@ -103,7 +103,7 @@ function LoginAndRegister() {
         </div>
       ))}
 
-      <div className="card w-96 bg-base-100 shadow-xl">
+      <div className="card w-96 bg-white shadow-xl">
         <div className="card-body items-center text-center">
           <div className="form-control w-full max-w-xs">
             <label className="label">
@@ -147,54 +147,60 @@ function LoginAndRegister() {
         </div>
 
         <dialog id="my_modal_1" className="modal">
-            <div className="modal-box w-3/12 max-w-3xl p-10">
-              <div className='grid justify-items-center'>
-                <div className="font-semibold text-2xl flex mb-3">Sign Up</div>
-              </div>
-              <div className="form-control w-full max-w-xs">
+          <div className="modal-box w-96 max-w-3xl p-10">
+            <div className='grid justify-items-center'>
+              <div className="font-semibold text-2xl flex mb-3">Sign Up</div>
+            </div>
+            <div className="form-control w-full max-w-lg items-center">
+              <div className='w-11/12'>
                 <label className="label">
                   <span className="label-text font-medium">Username</span>
                 </label>
                 <input 
                   type="text" 
                   placeholder="Type here" 
-                  className="input input-bordered w-full max-w-xs"
+                  className="input input-bordered w-full max-w-lg"
                   value={username}
                   onChange={handleUsernameChange}
                 />
               </div>
-              <div className="form-control w-full max-w-xs">
+            </div>
+            <div className="form-control w-full max-w-lg items-center">
+              <div className='w-11/12'>
                 <label className="label">
                   <span className="label-text font-medium">Email</span>
                 </label>
                 <input 
                   type="text" 
                   placeholder="Type here" 
-                  className="input input-bordered w-full max-w-xs"
+                  className="input input-bordered w-full max-w-lg"
                   value={email}
                   onChange={handleEmailChange}
                 />
               </div>
-              <div className="form-control w-full max-w-xs">
+            </div>
+            <div className="form-control w-full max-w-lg items-center">
+              <div className='w-11/12'>
                 <label className="label">
                   <span className="label-text font-medium">Password</span>
                 </label>
                 <input 
                   type="password" 
                   placeholder="Type here" 
-                  className="input input-bordered w-full max-w-xs"
+                  className="input input-bordered w-full max-w-lg"
                   value={password}
                   onChange={handlePasswordChange}
                 />
               </div>
-              <div className='grid justify-items-center'>
-                <button className=" items-center btn bg-green-500 text-white mt-7 mb-2" onClick={handleRegister}>Sign Up</button>
-              </div>
             </div>
-            <form method="dialog" className="modal-backdrop">
-              <button>close</button>
-            </form>
-          </dialog>
+            <div className='grid justify-items-center'>
+              <button className=" items-center btn bg-green-500 text-white mt-7 mb-2" onClick={handleRegister}>Sign Up</button>
+            </div>
+          </div>
+          <form method="dialog" className="modal-backdrop">
+            <button>close</button>
+          </form>
+        </dialog>
       </div>
     </>
   )
