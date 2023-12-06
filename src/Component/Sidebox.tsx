@@ -1,16 +1,55 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect,useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Context } from '../Contexts/Context';
 
-
 function Sidebox() {
+    // 取得jwt中的uid
+    const jwt = localStorage.getItem('user') as any
+    // 麻煩的拿到裡面的uid
+    const token = JSON.parse(jwt).token
+    const [header, payload] = token.slice(4,).split('.');
+    const decodedPayload = JSON.parse(atob(payload));
   
-  const navigate = useNavigate();
-  const { currentUser,setCurrentUser } = useContext(Context)!;
+  
+    const user_uuid: string = decodedPayload.uid
+    console.log(decodedPayload)
 
+    const [event, setEvent] = useState<String[]>([])
+    const navigate = useNavigate();
+  const { currentUser,setCurrentUser,ws } = useContext(Context)!;
   const noDot={
     listStyle: "none"
   }
+  
+    useEffect(() => {
+      // 連成功後就開始監聽
+      if (ws) {
+        console.log('connect success')
+        ws.on("onEventReceived", (data) => {
+          if (data.post.user_id.uid !== user_uuid) {
+            const name = data.post.user_id.username
+            setEvent(prevState => [...prevState, `${name} 發布了一則貼文`]);
+            console.log(data)
+          }
+        })
+        ws.on("onLikeReceived", (data) => {
+          console.log(data)
+          if (data.triggleBy === user_uuid) {
+            const name = data.name
+            setEvent(prevState => [...prevState, `${name} 說你的貼文讚`]);
+          }
+        })
+        ws.on("onCommentReceived", (data) => {
+          console.log(data)
+          if (data.triggleBy === user_uuid) {
+            const name = data.name
+            setEvent(prevState => [...prevState, `${name} 在你的貼文下留言`]);
+          }
+        })
+      }
+  
+    }, [ws])
+  
   return (
     
       <div className='pt-6 w-64 bg-lightblue h-full'>
@@ -36,6 +75,12 @@ function Sidebox() {
       <div className='my-2 mx-5 mt-4 pt-4 flex font-bold'>Events</div>
       <div className="my-2 mx-5 border border-5 border-gray-300"></div>
       <div className='my-2 text flex mx-5'>軒宏好帥</div>
+      {
+          event.length > 0 && event.map((each,index) =>{
+            return  <div key={index} className='my-2 text flex mx-5'>{each}</div>
+          })
+      }
+
 
 
 

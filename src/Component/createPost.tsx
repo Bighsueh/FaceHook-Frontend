@@ -1,19 +1,21 @@
-import React, { useState,useContext } from 'react';
+import React, { useState,useEffect,useContext } from 'react';
 import PostService from "../API/Post";
 import { Link } from 'react-router-dom';
 import { Context } from '../Contexts/Context';
 
 export default function CreatePost() {
 
+
     const [shareOption, setShareOption] = useState<string>("所有人");
-    const { content,setContent,currentUser,setCurrentUser } = useContext(Context)!;
+    const { content,setContent,currentUser,setCurrentUser, ws } = useContext(Context)!;
 
     const handleContent = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setContent(e.target.value);
     };
     const handleSubmitPost = () => {
       PostService.postPost(content)
-          .then(() => {
+          .then((data) => {
+            ws?.emit("onEventSend", data.data)
               window.alert("新增成功");
               setContent("");
           })

@@ -16,7 +16,7 @@ export default function ProfileHeader({userId}:any) {
 
   const location = useLocation();
 
-  const { currentUser, setCurrentUser } = useContext(Context)!;
+  const { currentUser, setCurrentUser,ws } = useContext(Context)!;
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [friend,setFriend] = useState(false);
   const [friendInvitation,setFriendInvitation] = useState(true);
@@ -73,6 +73,7 @@ export default function ProfileHeader({userId}:any) {
   const handleAddFriendInvite = () => {
     UserService.addFriendInvite(userId)
     .then((data) => {
+      ws?.emit("onFriendInvite", data.data)
       console.log(data.data.message)
       if (data.data.message === "成功發出好友邀請"){
         setFriendInvitation(false)

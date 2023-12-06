@@ -1,8 +1,8 @@
 import React, { useEffect, useContext } from "react";
 import { useState, KeyboardEvent } from 'react';
 import { io, Socket } from "socket.io-client";
-// import { isConstructorDeclaration } from "typescript";
 import { Chatroom, ChatLogItem, ChatContext } from '../Contexts/ChatContext';
+import { Context } from "../Contexts/Context";
 
 interface ServerToClientEvents {
   onMessageReceived: (data: ChatLogItem) => void;
