@@ -1,15 +1,17 @@
 import React, { useContext, useEffect, useState } from 'react';
 import UserService from "../API/User";
 import { Context } from '../Contexts/Context';
+import { Chatroom, ChatLogItem, ChatContext } from '../Contexts/ChatContext';
 import { v4 as uuidv4 } from 'uuid';
 
 function RightSideBar() {
-  const contextValue = useContext(Context)!;
-  // const { chatroomList, setChatroomList } = contextValue;
+  const chatContext = useContext(ChatContext);
+  const { chatrooms, setChatrooms, addChatroom } = chatContext;
+  const { openChatroomWindow, closeChatroomWindow} = chatContext;
 
   // 取得 jwt 中的 user id
-  const jwt = localStorage.getItem('user') as any
-  const token = JSON.parse(jwt).token
+  const jwt = localStorage.getItem('user') as any;
+  const token = JSON.parse(jwt).token;
   const [header, payload] = token.slice(4,).split('.');
   const decodedPayload = JSON.parse(atob(payload));
 
@@ -21,13 +23,12 @@ function RightSideBar() {
   useEffect(() => {
     UserService.getCurrentFriends(userId)
       .then((data) => {
-        setFriendList(data.data)
-        console.log(data.data);
+        setFriendList(data.data);
       })
       .catch((e) => {
         console.log(e);
       })
-  }, [userId])
+    }, [userId])
   console.log('friendList:');
   console.log(friendList);
 
@@ -55,8 +56,7 @@ function RightSideBar() {
         friendList.map((friendItem, friendIndex) => (
           <div className='flex flex-col items-center'>
 
-          {/* <div onClick={()=>addChatroom(friendItem.userName, friendItem.userUuid, friendItem.chatroomUuid, false)} */}
-          <div 
+          <div onClick={()=>openChatroomWindow(friendItem.freiend_user_id.uid)}
             className='mx-2 py-1 flex justify-start items-center border border-none rounded w-full hover:bg-hoverLightBlue'>
             <div className="flex space-x-2 mx-2">
               <img
