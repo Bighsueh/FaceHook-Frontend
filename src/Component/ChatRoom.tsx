@@ -1,9 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import { useState, KeyboardEvent } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import { io, Socket } from "socket.io-client";
-import { isConstructorDeclaration } from "typescript";
-
+// import { isConstructorDeclaration } from "typescript";
+import { Chatroom, ChatLogItem, ChatContext } from '../Contexts/ChatContext';
 
 interface ServerToClientEvents {
   onMessageReceived: (data: ChatLogItem) => void;
@@ -15,24 +14,15 @@ interface ClientToServerEvents {
   onClientConnected: (data: ChatLogItem) => void;
 }
 
-interface Chatroom {
-  userName: string,
-  userUuid: string;
-  chatroomUuid: string;
-  isWindowOpen: boolean;
-}
-
-interface ChatLogItem {
-  userUuid: string;
-  chatroomUuid: string;
-  message: string;
-  timestamp: number;
-}
-
 
 function ChatRoom() {
-  const [chatLog, setChatLog] = useState<ChatLogItem[]>([]);
-  const [chatroomList, setChatroomList] = useState<Chatroom[]>([]);
+  const chatContext = useContext(ChatContext);
+  const { chatrooms, setChatrooms} = chatContext;
+  const { chatlog, setChatlog} = chatContext;
+  const { openChatroomWindow, closeChatroomWindow} = chatContext;
+
+  // const [chatLog, setChatLog] = useState<ChatLogItem[]>([]);
+  // const [chatroomList, setChatroomList] = useState<Chatroom[]>([]);
 
   // 取得jwt中的uid
   const jwt = localStorage.getItem('user') as any
@@ -66,10 +56,10 @@ function ChatRoom() {
       console.log('connect success')
       ws.on("onMessageReceived", (data) => {
         if (data.userUuid !== userUuid) {
-          console.log(chatLog)
+          console.log(chatlog)
           // const { userUuid, chatroomUuid, message, timestamp } = data;
           //setChatLog([...chatLog, data]);
-          setChatLog(prevState => [...prevState, data]);
+          setChatlog([...chatlog, data]);
           console.log(data)
           console.log(`receive => message: ${data.message}`);
         }
@@ -79,35 +69,16 @@ function ChatRoom() {
 
   }, [ws])
 
-    // 新增聊天室視窗
-    const addChatroom = (
-      userName: string,
-      userUuid: string,
-      isWindowOpen: boolean,
-    ) => {
-      // 因為後端缺潤悠悠哀低還沒有製作，所以先隨機生成一個抵著用。
-      const chatroomUuid: string = uuidv4();
-
-      let newChatroom: Chatroom = {
-        userName: userName,
-        userUuid: userUuid,
-        chatroomUuid: chatroomUuid,
-        isWindowOpen: isWindowOpen,
-      };
-
-      setChatroomList([...chatroomList, newChatroom]);
-    };
-
   // 更新特定 chatroomItem
   const updateChatroom = (chatroomUuid: string, updatedData: Partial<Chatroom>) => {
-    const updatedList = chatroomList.map(chatroom => {
+    const updatedList = chatrooms.map(chatroom => {
       if (chatroom.chatroomUuid === chatroomUuid) {
         return { ...chatroom, ...updatedData };
       }
       return chatroom;
     });
 
-    setChatroomList(updatedList);
+    setChatrooms(updatedList);
   };
 
 
@@ -120,13 +91,13 @@ function ChatRoom() {
   // });
   // chatroom window status
   
-  const openWindow = (item: Chatroom) => {
-    updateChatroom(item.chatroomUuid, {isWindowOpen: true});
-  };
+  // const openWindow = (item: Chatroom) => {
+  //   updateChatroom(item.chatroomUuid, {isWindowOpen: true});
+  // };
 
-  const closeWindow = (item: Chatroom) => {
-    updateChatroom(item.chatroomUuid, {isWindowOpen: false});
-  };
+  // const closeWindow = (item: Chatroom) => {
+  //   updateChatroom(item.chatroomUuid, {isWindowOpen: false});
+  // };
 
   const handleEnterPress = (event: KeyboardEvent<HTMLInputElement>, chatroom: Chatroom) => {
     if (event.key === 'Enter') {
@@ -145,7 +116,7 @@ function ChatRoom() {
         timestamp: Date.now()
       });
 
-      setChatLog([...chatLog, data])
+      setChatlog([...chatlog, data])
 
       console.log(`send => userUuid: ${userUuid},chatroomUuid:${chatroom.chatroomUuid} message: ${value}`);
 
@@ -153,16 +124,16 @@ function ChatRoom() {
     }
   };
   useEffect(() => {
-    console.log(chatLog)
-  }, [chatLog])
+    console.log(chatlog)
+  }, [chatlog])
 
   return (
-    <div className="absolute bottom-0 right-0 flex">
-      {chatroomList.map((chatroomItem, chatroomIndex) => (
+    <div className="fixed bottom-0 right-0 flex">
+      {chatrooms.map((chatroomItem, chatroomIndex) => (
         chatroomItem.isWindowOpen ? (
           <div key={chatroomIndex}>
-            <div className="mx-6 w-80 h-96 border border-none shadow-xl shadow-gray-900 rounded-t-lg flex flex-col">
-              <div className="border-b-2 bottom-0 left-0 h-12 grid grid-cols-9">
+            <div className="bg-white mx-6 w-80 h-96 border border-slate-300 shadow-xl shadow-gray-900 rounded-t-lg flex flex-col">
+              <div className="shadow bottom-0 left-0 h-12 grid grid-cols-9">
                 <div className="col-span-7 mx-1 flex">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -180,11 +151,11 @@ function ChatRoom() {
                   </svg>
                   <div className="flex flex-col">
                     <div className="text-left font-semibold text-base">{chatroomItem.userName}</div>
-                    <div className="text-left text-sm">5分鐘前在線上</div>
+                    <div className="text-left text-sm">目前在線上</div>
                   </div>
                 </div>
                 <div className="flex">
-                  <div onClick={() => closeWindow(chatroomItem)} className="w-full p-1 justify-center">
+                  <div onClick={() => closeChatroomWindow(chatroomItem.userUuid)} className="w-full p-1 justify-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -202,7 +173,7 @@ function ChatRoom() {
                   </div>
                 </div>
                 <div className="flex">
-                  <div onClick={() => closeWindow(chatroomItem)} className="w-full p-1 justify-center">
+                  <div onClick={() => closeChatroomWindow(chatroomItem.userUuid)} className="w-full p-1 justify-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -220,8 +191,8 @@ function ChatRoom() {
                   </div>
                 </div>
               </div>
-              <div className="fixed bottom-14 w-80 px-2">
-                {chatLog.map((chatLogItem, chatLogIndex) => (
+              <div className="fixed bottom-14 w-80 px-2 shadow-inner">
+                {chatlog.map((chatLogItem, chatLogIndex) => (
                   chatLogItem.chatroomUuid !== chatroomItem.chatroomUuid ? (
                     <div key={chatLogIndex} className="chat chat-start">
                       <div className="chat-bubble bg-gray-200 text-black">{chatLogItem.message}</div>
