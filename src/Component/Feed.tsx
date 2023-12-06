@@ -4,7 +4,6 @@ import UserService from "../API/User";
 import { Link,useLocation } from 'react-router-dom';
 import { Context } from '../Contexts/Context';
 
-
 interface Comment {
   createdAt: string; 
   content: string;
@@ -24,15 +23,36 @@ export default function MainPost({userId}:any) {
     const [likedComments, setLikedComments] = useState<{ [postId: number]: boolean }>({});
     const [visibleComments, setVisibleComments] = useState<number>(2);
     const [shareOption, setShareOption] = useState<string>("所有人");
-    const { content,setContent,currentUser,setCurrentUser,ws } = useContext(Context)!;
+    const { content,setContent,currentUser,ws } = useContext(Context)!;
 
-  useEffect(() => {
+    useEffect(() => {
     const fetchData = async (getDataPromise:any) => {
       try {
         const data = await getDataPromise();
         console.log(data);
+
+        const updatedLikedPosts: { [postId: number]: boolean } = {};
+        const updatedLikedComments: { [postId: number]: boolean } = {};
+
+        data.data.forEach((post: any) => {
+            post.like.forEach((like: any) => {
+            if (like.user_id.id === currentUser?.id) {
+                updatedLikedPosts[post.id] = true;
+            }
+            });
+            post.comments.forEach((comment: Comment) => {
+                comment.like.forEach((commentLike: any) => {
+                  if (commentLike.user_id.id === currentUser?.id) {
+                    updatedLikedComments[comment.id] = true;
+                  }
+                });
+            });
+        });
+        // 更新 likedPosts
+        setLikedPosts(updatedLikedPosts);
+        setLikedComments(updatedLikedComments);
         setPostData(data.data);
-        console.log(data.data);
+
       } catch (error) {
         console.error(error);
       }
@@ -43,7 +63,7 @@ export default function MainPost({userId}:any) {
       fetchData(() => UserService.getUserPosts(userId));
       console.log("個人檔案的東西");
     }
-  }, [newpost, content, location]);
+  }, [newpost,content, location]);
   
 
 
@@ -55,17 +75,19 @@ export default function MainPost({userId}:any) {
       console.log(postId);
     };
     const handleSubmitComment = () => {
-        PostService.postComment(postId, content)
-        .then((data) => {
-            ws?.emit("onCommentSend", data.data)
-            alert("新增成功");
-            
-            setContent("")
-        })
-        .catch((e) => {
-            console.log(e);
-            window.alert(e.response.data);
-        });
+        if (content !== undefined && content !== null && content !== ""){
+            PostService.postComment(postId, content)
+            .then((data) => {
+                ws?.emit("onCommentSend", data.data)
+                // alert("新增成功");
+                setContent("")
+            })
+            .catch((e) => {
+                console.log(e);
+            });
+        } else {
+            window.alert("請輸入內容");
+        }
     };
     const handleDeleteComment = (commentId: number) => {
       const confirmDelete = window.confirm("確定要刪除嗎?");
@@ -147,35 +169,33 @@ export default function MainPost({userId}:any) {
                 window.alert(e.response.data);
             });
     };
-    const handleCommentLike = (postId: number) => {
-        if (likedComments[postId]) {
-            PostService.unlikeComment(postId)
-                .then(() => {
-                    setLikedComments((prevState) => ({
-                        ...prevState,
-                        [postId]: false,
-                    }));
-                    setNewpost("unlikecomment" + postId);
-                })
-                .catch((e) => {
-                    console.log(e);
-                    window.alert(e.response.data);
-                });
+    const handleCommentLike = (commentId: number) => {
+        if (likedComments[commentId]) {
+          PostService.unlikeComment(commentId)
+            .then(() => {
+              setLikedComments((prevState) => ({
+                ...prevState,
+                [commentId]: false,
+              }));
+              setNewpost("unlikecomment" + commentId);
+            })
+            .catch((e) => {
+              console.log(e);
+            });
         } else {
-            PostService.likeComment(postId)
-                .then(() => {
-                    setLikedComments((prevState) => ({
-                        ...prevState,
-                        [postId]: true,
-                    }));
-                    setNewpost("likecomment" + postId);
-                })
-                .catch((e) => {
-                    console.log(e);
-                    window.alert(e.response.data);
-                });
+          PostService.likeComment(commentId)
+            .then(() => {
+              setLikedComments((prevState) => ({
+                ...prevState,
+                [commentId]: true,
+              }));
+              setNewpost("likecomment" + commentId);
+            })
+            .catch((e) => {
+              console.log(e);
+            });
         }
-    };
+      };
     
 
   return (
@@ -324,7 +344,6 @@ export default function MainPost({userId}:any) {
 
                 {isLiked ? (
                   <button className="w-1/2 flex items-center justify-center focus:outline-none" onClick={() => handleUnLike(data.id)}>
-                    {/* <SLike /> */}
                     <svg className="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="#2563EB" viewBox="0 0 18 18">
                       <path d="M3 7H1a1 1 0 0 0-1 1v8a2 2 0 0 0 4 0V8a1 1 0 0 0-1-1Zm12.954 0H12l1.558-4.5a1.778 1.778 0 0 0-3.331-1.06A24.859 24.859 0 0 1 6 6.8v9.586h.114C8.223 16.969 11.015 18 13.6 18c1.4 0 1.592-.526 1.88-1.317l2.354-7A2 2 0 0 0 15.954 7Z"/>
                     </svg>
@@ -332,7 +351,6 @@ export default function MainPost({userId}:any) {
                   </button>
                 ) : (
                   <button className="w-1/2 flex items-center justify-center focus:outline-none" onClick={() => handleLike(data.id)}>
-                    {/* <SLike /> */}
                     <svg className="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                       <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.008 8.714c1-.097 1.96-.45 2.792-1.028a25.112 25.112 0 0 0 4.454-5.72 1.8 1.8 0 0 1 .654-.706 1.742 1.742 0 0 1 1.65-.098 1.82 1.82 0 0 1 .97 1.128c.075.248.097.51.065.767l-1.562 4.629M4.008 8.714H1v9.257c0 .273.106.535.294.728a.99.99 0 0 0 .709.301h1.002a.99.99 0 0 0 .71-.301c.187-.193.293-.455.293-.728V8.714Zm8.02-1.028h4.968c.322 0 .64.08.925.232.286.153.531.374.716.645a2.108 2.108 0 0 1 .242 1.883l-2.36 7.2c-.288.813-.48 1.354-1.884 1.354-2.59 0-5.39-1.06-7.504-1.66"/>
                     </svg>
@@ -340,10 +358,7 @@ export default function MainPost({userId}:any) {
                   </button>
                 )}
 
-
-
                 <button className="w-1/2 flex items-center justify-center focus:outline-none">
-                  {/* <CommentButton /> */}
                   <svg className="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 18">
                     <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 5h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-2v3l-4-3H8m4-13H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2v3l4-3h4a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1Z"/>
                   </svg>
@@ -356,13 +371,11 @@ export default function MainPost({userId}:any) {
 
               <form>
                 <div className="flex items-center px-2 py-2 rounded-lg">
-                    <textarea id="chat" rows={1} onChange={handleContent} className="block resize-none p-2.5 pl-4 w-full text-sm text-gray-900 bg-white rounded-2xl border border-gray-300 focus:ring-blue-500 focus:border-blue-500 " placeholder="Add a comment..."></textarea>
+                    <textarea id="chat" rows={1} onChange={(e)=>{setContent(e.target.value)}} className="block resize-none p-2.5 pl-4 w-full text-sm text-gray-900 bg-white rounded-2xl border border-gray-300 focus:ring-blue-500 focus:border-blue-500 " placeholder="Add a comment..."></textarea>
                         <button 
                             type="submit" 
                             onMouseOver={() => handleId(data.id)}
-                            onClick={() => {                                       
-                                handleSubmitComment();
-                            }}
+                            onClick={() => {handleSubmitComment()}}
                             className="inline-flex justify-center p-2 text-blue-600 rounded-full cursor-pointer hover:bg-blue-100"
                         >
                         <svg className="w-5 h-5 rotate-90" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
@@ -380,21 +393,21 @@ export default function MainPost({userId}:any) {
                           <img className="rounded-full h-8 w-8 mr-2 mt-1 " src="https://picsum.photos/id/1027/200/200"/>
                           <div>
                               <div className='indicator'>
-                              { comment.like.length > 0 && 
-                                  <span className="indicator-item indicator-bottom badge badge-sm mb-2 bg-white shadow">
+                                { comment.like.length > 0 && 
+                                    <span className="indicator-item indicator-bottom badge badge-sm mb-2 bg-white shadow">
                                       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="#2563EB" className="me-1" viewBox="0 0 16 16">
                                           <path d="M6.956 1.745C7.021.81 7.908.087 8.864.325l.261.066c.463.116.874.456 1.012.965.22.816.533 2.511.062 4.51a9.84 9.84 0 0 1 .443-.051c.713-.065 1.669-.072 2.516.21.518.173.994.681 1.2 1.273.184.532.16 1.162-.234 1.733.058.119.103.242.138.363.077.27.113.567.113.856 0 .289-.036.586-.113.856-.039.135-.09.273-.16.404.169.387.107.819-.003 1.148a3.163 3.163 0 0 1-.488.901c.054.152.076.312.076.465 0 .305-.089.625-.253.912C13.1 15.522 12.437 16 11.5 16H8c-.605 0-1.07-.081-1.466-.218a4.82 4.82 0 0 1-.97-.484l-.048-.03c-.504-.307-.999-.609-2.068-.722C2.682 14.464 2 13.846 2 13V9c0-.85.685-1.432 1.357-1.615.849-.232 1.574-.787 2.132-1.41.56-.627.914-1.28 1.039-1.639.199-.575.356-1.539.428-2.59z"/>
                                       </svg>
                                       {comment.like.length}                                   
-                                  </span>
-                              }
+                                    </span>
+                                }
                               <div className="bg-gray-100 rounded-lg px-4 ml-1 pt-2 pb-2.5">
                                   <div className="font-semibold text-sm leading-relaxed">{comment.user_id.username}</div>
                                   <div className="text-xs leading-snug md:leading-normal">{comment.content}</div>                                       
                               </div>
                               </div>
                               <div className='flex'>
-                                  <button onMouseOver={()=>{handleId(comment.id)}} onClick={()=>{handleCommentLike(postId)}}><p className='text-xs mt-0.5 me-3 ml-1'>Like</p></button>
+                                  <button onMouseOver={()=>{handleId(comment.id)}} onClick={()=>{handleCommentLike(postId)}}><p className='text-xs mt-0.5 me-3 ml-1'>{likedComments[comment.id] ? "Unlike" : "Like"}</p></button>
                                   <div className="text-xs mt-0.5 text-gray-500">{commentCreateAt}</div>
                               </div>
                           </div>
@@ -416,11 +429,11 @@ export default function MainPost({userId}:any) {
                   )
               })}
 
-              {visibleComments < data.comments.length && (
+              {/* {visibleComments < data.comments.length && (
                   <button onClick={() => setVisibleComments(visibleComments + 5)}>
                       查看更多留言
                   </button>
-              )}
+              )} */}
 
             </div>
           </div>
