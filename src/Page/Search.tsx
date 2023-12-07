@@ -21,7 +21,7 @@ function Search () {
     const [likedComments, setLikedComments] = useState<{ [postId: number]: boolean }>({});
     const [visibleComments, setVisibleComments] = useState<number>(2);
     const [shareOption, setShareOption] = useState<string>("所有人");
-    const { content,setContent,currentUser,setCurrentUser  } = useContext(Context)!;
+    const { content,setContent,currentUser  } = useContext(Context)!;
 
     const searchParams = new URLSearchParams(window.location.search);
     const keyword = searchParams.get('q') as string;

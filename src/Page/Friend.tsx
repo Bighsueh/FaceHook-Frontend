@@ -19,7 +19,7 @@ interface UserProfile {
 function Friend() {
 
   const {userId}:any = useParams();
-  const { currentUser, setCurrentUser,ws } = useContext(Context)!;
+  const { currentUser,ws } = useContext(Context)!;
   const [friend, setFriend] = useState<any[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [commonFriendsMap, setCommonFriendsMap] = useState<Record<number, any>>({});
