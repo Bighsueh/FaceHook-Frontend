@@ -13,7 +13,7 @@ export default function CreatePost() {
       setContent(e.target.value);
     };
     const handleSubmitPost = () => {
-      PostService.postPost(content)
+      PostService.postPost(content,shareOption)
           .then((data) => {
             ws?.emit("onEventSend", data.data)
               window.alert("新增成功");

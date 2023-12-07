@@ -26,16 +26,16 @@ class PostService {
     return axios.get(`${API_URL}/${id}`, { headers });
   }
 
-  postPost(content: string): Promise<AxiosResponse> {
+  postPost(content: string,group:string): Promise<AxiosResponse> {
     const token = this.getToken();
     const headers = token ? { Authorization: token } : {};
-    return axios.post(API_URL, { content }, { headers });
+    return axios.post(API_URL, { content,group }, { headers });
   }
 
-  updatePost(id: number, content: string): Promise<AxiosResponse> {
+  updatePost(id: number, content: string,group: string): Promise<AxiosResponse> {
     const token = this.getToken();
     const headers = token ? { Authorization: token } : {};
-    return axios.put(`${API_URL}/${id}`, { content }, { headers });
+    return axios.put(`${API_URL}/${id}`, { content,group }, { headers });
   }
 
   deletePost(id: number): Promise<AxiosResponse> {

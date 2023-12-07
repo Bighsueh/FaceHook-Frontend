@@ -24,6 +24,7 @@ export default function MainPost({userId}:any) {
     const [visibleComments, setVisibleComments] = useState<number>(2);
     const [shareOption, setShareOption] = useState<string>("所有人");
     const { content,setContent,currentUser,ws } = useContext(Context)!;
+    const [page,setPage] = useState<string>("");
 
     useEffect(() => {
     const fetchData = async (getDataPromise:any) => {
@@ -59,9 +60,10 @@ export default function MainPost({userId}:any) {
     };
     if (location.pathname === '/') {
       fetchData(() => PostService.getPost());
+      setPage("homepage")
     } else if (location.pathname.startsWith('/personal/')) {
       fetchData(() => UserService.getUserPosts(userId));
-      console.log("個人檔案的東西");
+      setPage("profile")
     }
   }, [newpost,content, location]);
   
@@ -119,6 +121,7 @@ export default function MainPost({userId}:any) {
       PostService.getApost(postId)
           .then((data) => {
               console.log(data.data);
+              setShareOption(data.data.group)
               setContent(data.data.content);
           })
           .catch((e) => {
@@ -127,7 +130,7 @@ export default function MainPost({userId}:any) {
           });
     };
     const handleUpdatePost = () => {
-        PostService.updatePost(postId, content)
+        PostService.updatePost(postId, content,shareOption)
             .then(() => {
                 window.alert("修改成功");
                 setContent("")
@@ -195,7 +198,7 @@ export default function MainPost({userId}:any) {
               console.log(e);
             });
         }
-      };
+    };
     
 
   return (
@@ -205,8 +208,14 @@ export default function MainPost({userId}:any) {
           const createdAt = new Date(data.createdAt).toLocaleString('zh-TW', { year: 'numeric',month: 'numeric',day: 'numeric',hour: 'numeric',minute: 'numeric',hour12: true });
           const visibleCommentList = data.comments.slice(0, visibleComments) as Comment[];
           const isLiked = likedPosts[data.id] || false;
+          const isFriendPost =
+          page === "homepage" &&
+          data.group === "朋友" &&
+          data.user_id.friend.some((friend: any) => friend.freiend_user_id.id === currentUser?.id);
 
         return(
+          <>
+          {((data.group === "所有人") || (data.group === "朋友" && isFriendPost) || (data.user_id.id === currentUser.id) || (data.group === "只限本人" && data.user_id.id === currentUser.id)) && (
           <div id="postcard" key={data.id}>
             <div className="w-full shadow-fb rounded bg-white border border-gray-300 p-4">
               <div className="flex justify-between items-center">
@@ -221,7 +230,8 @@ export default function MainPost({userId}:any) {
                     <br />
                     <span className="text-fGrey text-opacity-50 text-sm">
                       {' '}
-                      {createdAt}{' '}
+                      {createdAt}{'  '}
+                      {data.group}
                     </span>
                   </div>
                 </div>
@@ -437,6 +447,8 @@ export default function MainPost({userId}:any) {
 
             </div>
           </div>
+          )}
+          </>
         )
       })}   
     </>
