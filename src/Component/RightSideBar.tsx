@@ -4,6 +4,8 @@ import { Context } from '../Contexts/Context';
 import { Chatroom, ChatLogItem, ChatContext } from '../Contexts/ChatContext';
 import { v4 as uuidv4 } from 'uuid';
 
+import ChatService from '../API/Chat';
+
 function RightSideBar() {
   const chatContext = useContext(ChatContext);
   const { chatrooms, setChatrooms, addChatroom } = chatContext;
@@ -28,6 +30,14 @@ function RightSideBar() {
       .catch((e) => {
         console.log(e);
       })
+
+      ChatService.getAllRoom()
+      .then(data=>{
+        console.log(data)
+      }).catch((e) => {
+        console.log(e);
+      })
+
     }, [userId])
   console.log('friendList:');
   console.log(friendList);
@@ -56,7 +66,7 @@ function RightSideBar() {
         friendList.map((friendItem, friendIndex) => (
           <div className='flex flex-col items-center'>
 
-          <div onClick={()=>openChatroomWindow(friendItem.freiend_user_id.uid)}
+          <div onClick={()=>openChatroomWindow(friendItem.freiend_user_id.uid, '2')}
             className='mx-2 py-1 flex justify-start items-center border border-none rounded w-full hover:bg-hoverLightBlue'>
             <div className="flex space-x-2 mx-2">
               <img

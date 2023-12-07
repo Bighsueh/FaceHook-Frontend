@@ -21,8 +21,8 @@ export type ContextType = {
   chatlog: ChatLogItem[];
   setChatlog: (chatlog: ChatLogItem[]) => void;
   addChatroom: (userName: string, userUuid: string, isWindowOpen: boolean) => void;
-  openChatroomWindow: (userUuid: string) => void;
-  closeChatroomWindow: (userUuid: string) => void;
+  openChatroomWindow: (userUuid: string,chatroomUuid: string ) => void;
+  closeChatroomWindow: (userUuid: string,chatroomUuid: string) => void;
 };
 
 export const ChatContext = createContext<ContextType>({
@@ -45,23 +45,25 @@ export const ChatContextProvider = ({ children }: PropsWithChildren<{}>) => {
   }
 
   // 依照 userUuid 更新 isWindowOpen 狀態
-  function updateIsWindowOpen(userUuid: string, newIsWindowOpen: boolean): void {
-    const index = chatrooms.findIndex(chatroom => chatroom.userUuid === userUuid);
+  function updateIsWindowOpen(userUuid: string, chatroomUuid: string,newIsWindowOpen: boolean): void {
+    const index = chatrooms.findIndex(chatroom => chatroom.userUuid === userUuid && chatroom.chatroomUuid === chatroomUuid);
     if (index !== -1) chatrooms[index].isWindowOpen = newIsWindowOpen;
   }
 
   // 開啟聊天室
   const openChatroomWindow = (
     userUuid: string,
+    chatroomUuid: string,
   ) => {
-    updateIsWindowOpen(userUuid, true);
+    updateIsWindowOpen(userUuid, chatroomUuid, true);
   }
 
   // 關閉聊天室
   const closeChatroomWindow = (
     userUuid: string,
+    chatroomUuid: string,
   ) => {
-    updateIsWindowOpen(userUuid, false);
+    updateIsWindowOpen(userUuid, chatroomUuid, false);
   }
   
   // 新增聊天室

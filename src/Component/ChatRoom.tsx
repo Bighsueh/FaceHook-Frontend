@@ -40,6 +40,10 @@ function ChatRoom() {
   const [header, payload] = token.slice(4,).split('.');
   const decodedPayload = JSON.parse(atob(payload));
 
+  useEffect(()=>{
+console.log(chatrooms)
+  },[chatrooms])
+
   const userUuid: string = decodedPayload.uid
   console.log(userUuid)
 
@@ -166,7 +170,7 @@ function ChatRoom() {
                   </div>
                 </div>
                 <div className="flex">
-                  <div onClick={() => closeChatroomWindow(chatroomItem.userUuid)} className="w-full p-1 justify-center">
+                  <div onClick={() => closeChatroomWindow(chatroomItem.userUuid,'2')} className="w-full p-1 justify-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -184,7 +188,7 @@ function ChatRoom() {
                   </div>
                 </div>
                 <div className="flex">
-                  <div onClick={() => closeChatroomWindow(chatroomItem.userUuid)} className="w-full p-1 justify-center">
+                  <div onClick={() => closeChatroomWindow(chatroomItem.userUuid,'2')} className="w-full p-1 justify-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"

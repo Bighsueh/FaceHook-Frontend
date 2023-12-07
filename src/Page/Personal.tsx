@@ -27,6 +27,8 @@ function Personal() {
   useEffect(() => {
     UserService.getUserProfile(userId)
         .then((data) => {
+          console.log(userId)
+          console.log('123',data)
             setProfile(data.data);
         })
         .catch((e) => {
