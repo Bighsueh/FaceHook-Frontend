@@ -59,8 +59,12 @@ function Navbar() {
   };
 
   const handleSearchClick = () => {
-    navigate(`/search?q=${keyword}`);
-    window.location.reload();
+    if(keyword.trim() !== ""){
+      navigate(`/search?q=${keyword}`);
+      window.location.reload();
+    } else{
+      window.alert("請輸入內容")
+    }
   };
   const handleEnterKey = (e:any) => {
     if (e.key === 'Enter') {
@@ -118,11 +122,18 @@ function Navbar() {
   
 
   return (
-    <div className="grid grid-cols-5 bg-mistblue">
-      <Link to='/'>
-        <div className="p-5 ml-3 text-3xl font-bold text-white text-left flex col-span-1">FaceHook</div>
-      </Link>
-      <div className='grid py-3 relative text-black text-center col-span-3'>
+    <div className="grid grid-cols-8 bg-mistblue">
+      <div className='col-span-2 flex'>
+        <button className='p-2 mx-4'>
+          <svg className="w-6 h-6 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+          </svg>
+        </button>
+        <Link to='/'>
+          <div className="text-3xl font-bold text-white text-left mt-5">FaceHook</div>
+        </Link>
+      </div>
+      <div className='grid py-3 relative text-black text-center col-span-4'>
         <div className='grid grid-cols-10 bg-white w-2/3 h-full rounded-2xl justify-self-center px-1 pl-4'>
           <input type="text" placeholder="Search" className="justify-self-start col-span-9 w-full border-none input-ghost text-lg" value={keyword} onChange={(e) => setKeyword(e.target.value)} onKeyUp={handleEnterKey}/>
           <div className='p-2'>
@@ -135,7 +146,7 @@ function Navbar() {
 
         </div>
       </div>
-      <div className='m-4 ml-auto flex col-span-1'>
+      <div className='m-4 ml-auto flex col-span-2'>
         <div className='h-full mx-1 grid'>
           <div className="dropdown dropdown-bottom dropdown-end">
             <div className="indicator">
@@ -147,10 +158,10 @@ function Navbar() {
               </button>
             </div>           
               
-            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-80">
+            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-white rounded-box w-80">
               {invitation !== null && invitation.map((data)=>{
                 return(
-                  <a href="#" className="flex px-4 py-3">
+                  <Link to="#" className="flex px-4 py-3">
                     <div className="flex-shrink-0">
                       {/* <img className="rounded-full w-11 h-11" src="/docs/images/people/profile-picture-1.jpg" alt="img"/> */}
                       <img className="rounded-full h-11 w-11 mr-2 mt-1 " src="https://picsum.photos/id/1027/200/200"/>
@@ -174,9 +185,12 @@ function Navbar() {
                           </div>
                         </div>
                     </div>
-                  </a>
+                  </Link>
                 )
               })}
+              {invitation.length === 0 && 
+                <div className='grid grid-cols-3 h-12 w-full place-items-center'><p className='col-start-2 text-base'>NULL</p></div>
+              }
             </ul>
                        
           </div>
