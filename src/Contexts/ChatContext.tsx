@@ -1,6 +1,6 @@
 import { PropsWithChildren, createContext, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-
+import ChatService from '../API/Chat';
 export interface Chatroom {
   userName: string;
   userUuid: string;
@@ -8,18 +8,36 @@ export interface Chatroom {
   isWindowOpen: boolean;
 }
 
+// export interface ChatLogItem {
+//   userUuid: string;
+//   chatroomUuid: string;
+//   message: string;
+//   timestamp: number;
+// }
 export interface ChatLogItem {
-  userUuid: string;
-  chatroomUuid: string;
-  message: string;
-  timestamp: number;
+  id?: string;
+  text: string;
+  createdAt: string;
+  user_id: {
+    id:number
+    uid?: string,
+    username?: string,
+    email?: string,
+    password?: string
+  };
+  is_return?: boolean;
+  type?: string,
+}
+
+export interface ChatLogStore {
+  [chatroom_id: number]: ChatLogItem[];
 }
 
 export type ContextType = {
   chatrooms: Chatroom[];
   setChatrooms: (chatrooms: Chatroom[]) => void;
-  chatlog: ChatLogItem[];
-  setChatlog: (chatlog: ChatLogItem[]) => void;
+  chatlog: ChatLogStore ;
+  setChatlog: (chatlog: ChatLogStore) => void;
   addChatroom: (userName: string, userUuid: string, isWindowOpen: boolean) => void;
   openChatroomWindow: (userUuid: string,chatroomUuid: string ) => void;
   closeChatroomWindow: (userUuid: string,chatroomUuid: string) => void;
@@ -28,7 +46,7 @@ export type ContextType = {
 export const ChatContext = createContext<ContextType>({
   chatrooms: [],
   setChatrooms: () => {},
-  chatlog: [],
+  chatlog: {},
   setChatlog: () => {},
   addChatroom: () => {}, 
   openChatroomWindow: () => {}, 
@@ -37,17 +55,54 @@ export const ChatContext = createContext<ContextType>({
 
 export const ChatContextProvider = ({ children }: PropsWithChildren<{}>) => {
   const [chatrooms, setChatrooms] = useState<ContextType['chatrooms']>([]);
-  const [chatlog, setChatlog] = useState<ContextType['chatlog']>([]);
+  const [chatlog, setChatlog] = useState<ContextType['chatlog']>({});
 
   // 檢查 user uuid 是否存在在 chatrooms
   function isUserInChatrooms(userUuid: string): boolean {
     return chatrooms.some(chatroom => chatroom.userUuid === userUuid);
   }
 
+
+  // 在某个地方更新 chatroom_id 对应的聊天记录
+  const updateChatlog = (chatroom_id: string, newChatLog: ChatLogItem[]) => {
+    console.log(chatlog)
+    console.log(newChatLog)
+    setChatlog((prevChatlog) => {
+      return { ...prevChatlog, [chatroom_id]: [...newChatLog] };
+    });
+  };
+
+
   // 依照 userUuid 更新 isWindowOpen 狀態
   function updateIsWindowOpen(userUuid: string, chatroomUuid: string,newIsWindowOpen: boolean): void {
-    const index = chatrooms.findIndex(chatroom => chatroom.userUuid === userUuid && chatroom.chatroomUuid === chatroomUuid);
-    if (index !== -1) chatrooms[index].isWindowOpen = newIsWindowOpen;
+    // 取得聊天歷史紀錄
+    if(newIsWindowOpen){
+      ChatService.getChatLog(parseInt(chatroomUuid))
+      .then((chatLogData) => {
+        const newChatLog: ChatLogItem[] = chatLogData.data;
+        updateChatlog(chatroomUuid, newChatLog);
+      }).catch(err =>{
+        console.log(err)
+      })
+    }
+    const index = chatrooms.findIndex((chatroom:any) => chatroom.id === chatroomUuid);
+    const cid= chatrooms[index] as any
+    //const index = chatrooms.findIndex(chatroom => chatroom.userUuid === userUuid && chatroom.chatroomUuid === chatroomUuid);
+    // 這樣useState才會重新渲染
+    if (index !== -1) {
+      setChatrooms((prevChatroom) => (
+        prevChatroom.map((room:any) => {
+          console.log(room)
+          if (room.id === cid.id) {
+            return {
+              ...room,
+              isWindowOpen: newIsWindowOpen
+            };
+          }
+          return room;
+        })
+      ))
+  }
   }
 
   // 開啟聊天室

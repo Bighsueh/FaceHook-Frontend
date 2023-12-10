@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 
 const API_URL = "http://localhost:8080/post";
+const API_URL2 = "http://localhost:8080/post/images";
 
 
 class PostService {
@@ -26,16 +27,23 @@ class PostService {
     return axios.get(`${API_URL}/${id}`, { headers });
   }
 
-  postPost(content: string): Promise<AxiosResponse> {
+  postPost(content: string,group:string): Promise<AxiosResponse> {
     const token = this.getToken();
     const headers = token ? { Authorization: token } : {};
-    return axios.post(API_URL, { content }, { headers });
+    return axios.post(API_URL, { content,group }, { headers });
+  }
+  postPhoto(formData:any):Promise<AxiosResponse> {
+    const token = this.getToken();
+    const headers = token? { Authorization:token,'Content-Type':'multipartform-data' } :{};
+    console.log(formData);
+    return axios.post(API_URL2,formData, { headers });
+    
   }
 
-  updatePost(id: number, content: string): Promise<AxiosResponse> {
+  updatePost(id: number, content: string,group: string): Promise<AxiosResponse> {
     const token = this.getToken();
     const headers = token ? { Authorization: token } : {};
-    return axios.put(`${API_URL}/${id}`, { content }, { headers });
+    return axios.put(`${API_URL}/${id}`, { content,group }, { headers });
   }
 
   deletePost(id: number): Promise<AxiosResponse> {

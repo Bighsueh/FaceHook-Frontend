@@ -9,7 +9,7 @@ import ChatService from '../API/Chat';
 function RightSideBar() {
   const chatContext = useContext(ChatContext);
   const { chatrooms, setChatrooms, addChatroom } = chatContext;
-  const { openChatroomWindow, closeChatroomWindow} = chatContext;
+  const { openChatroomWindow, closeChatroomWindow } = chatContext;
 
   // 取得 jwt 中的 user id
   const jwt = localStorage.getItem('user') as any;
@@ -24,24 +24,49 @@ function RightSideBar() {
 
   useEffect(() => {
     UserService.getCurrentFriends(userId)
-      .then((data) => {
-        setFriendList(data.data);
+      .then((friendData) => {
+        // get allChatroom by user
+        ChatService.getAllRoom(userId)
+          .then((chatroomData) => {
+            setChatrooms(chatroomData.data)
+            console.log(chatroomData.data)
+
+            const mergedList = friendData.data.map((friend: any) => {
+              //用朋友去找才不會重複
+              const userId = friend.freiend_user_id.id;
+
+              // 找到對應的聊天室
+              const matchingChatroom = chatroomData.data.find((room:any) =>
+                room.user_id.some((user:any) => user.id === userId)
+              );
+
+              // 如果找到聊天室，合併到好友列表中
+              if (matchingChatroom) {
+                return {
+                  ...friend,
+                  chatroom_id: matchingChatroom.id
+                };
+              }
+
+              // 如果沒找到聊天室，保留原本的好友資訊
+              return { ...friend };
+            });
+
+            console.log(mergedList)
+            setFriendList(mergedList)
+          }).catch((e) => {
+            console.log(e);
+          })
+
+        //setFriendList(friendData.data);
+        console.log(friendData.data)
       })
       .catch((e) => {
         console.log(e);
       })
 
-      ChatService.getAllRoom()
-      .then(data=>{
-        console.log(data)
-      }).catch((e) => {
-        console.log(e);
-      })
 
-    }, [userId])
-  console.log('friendList:');
-  console.log(friendList);
-
+  }, [userId])
 
   return (
 
@@ -64,20 +89,20 @@ function RightSideBar() {
 
       {
         friendList.map((friendItem, friendIndex) => (
-          <div className='flex flex-col items-center'>
+          <div className='flex flex-col items-center' key={friendIndex}>
 
-          <div onClick={()=>openChatroomWindow(friendItem.freiend_user_id.uid, '2')}
-            className='mx-2 py-1 flex justify-start items-center border border-none rounded w-full hover:bg-hoverLightBlue'>
-            <div className="flex space-x-2 mx-2">
-              <img
-                src="https://picsum.photos/id/1025/500"
-                alt="img"
-                className="h-10 w-10 rounded-full mt-1"
-              />
+            <div onClick={() => openChatroomWindow(friendItem.freiend_user_id.uid, friendItem.chatroom_id)}
+              className='mx-2 py-1 flex justify-start items-center border border-none rounded w-full hover:bg-hoverLightBlue'>
+              <div className="flex space-x-2 mx-2">
+                <img
+                  src="https://picsum.photos/id/1025/500"
+                  alt="img"
+                  className="h-10 w-10 rounded-full mt-1"
+                />
+              </div>
+              <div className='mx-2 font-bold'>{friendItem.freiend_user_id.username}</div>
             </div>
-            <div className='mx-2 font-bold'>{friendItem.freiend_user_id.username}</div>
           </div>
-        </div>
         ))
 
       }

@@ -4,19 +4,13 @@ const API_URL = "http://localhost:8080/chat";
 
 class ChatService {
 
-  getAllRoom(): Promise<AxiosResponse> {
-
-    //return axios.post(API_URL + "/getAllRoom",{ user_id })
-    return axios.get(API_URL + "/getAllRoom")
+  getAllRoom(id: number): Promise<AxiosResponse> {
+    return axios.get(API_URL + `/getAllRoom/${id}`)
   }
-  
-//   getUserState() {
-   
-//     if (userString) {
-//       return JSON.parse(userString);
-//     }
-//     return null; 
-//   }
+
+  getChatLog(id: number): Promise<AxiosResponse> {
+    return axios.get(API_URL + `/getChatLog/${id}`)
+  }
 
 }
 
