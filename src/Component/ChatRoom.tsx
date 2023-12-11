@@ -28,7 +28,8 @@ interface ClientToServerEvents {
 function ChatRoom() {
   const chatContext = useContext(ChatContext);
   const { chatrooms, setChatrooms} = chatContext;
-  const { chatlog, setChatlog} = chatContext;
+  const { chatlog, setChatlog } = chatContext;
+
   const { openChatroomWindow, closeChatroomWindow} = chatContext;
 
   // 取得jwt中的uid
@@ -38,6 +39,8 @@ function ChatRoom() {
   const decodedPayload = JSON.parse(atob(payload));
 
   const userUuid: string = decodedPayload.uid
+
+  const { friendList } = useContext(Context)!;
 
   const [ws, setWS] = useState<Socket<ServerToClientEvents, ClientToServerEvents> | undefined>(undefined);
   useEffect(() => {
@@ -61,15 +64,40 @@ function ChatRoom() {
     // 連成功後就開始監聽
     if (ws) {
       console.log('connect success')
-      ws.on("onMessageReceived", (data) => {
-        if (data.user_id.id !== parseInt(userUuid)) {
-          console.log(chatlog)
-          // const { userUuid, chatroomUuid, message, timestamp } = data;
-          //setChatLog([...chatLog, data]);
-          //setChatlog([...chatlog, data]);
-          console.log(data)
-          console.log(`receive => message: ${data.text}`);
+      ws.on("onMessageReceived", async(data:any) => {
+        console.log('why')
+        console.log(data)
+        if(data.user_id.id !== decodedPayload.id){
+          await addNewMessage(data.chatroomUuid, data)
         }
+    //     console.log(chatlog)
+    //     console.log(chatlog[parseInt(data.chatroomUuid)])
+    // if(chatlog[parseInt(data.chatroomUuid)]){
+    //      if(data.user_id.id !== decodedPayload.id){
+    //       const temp = chatlog[parseInt(data.chatroomUuid)]
+    //       const filteredArray = await temp.filter((each:any) => each.id === data.id);
+    //      console.log(filteredArray)
+    //       if(filteredArray.length===0){
+    //         addNewMessage(data.chatroomUuid, data)
+    //       }
+             
+    //         }
+
+        // 本來要從聊天使抓兩個朋友
+        // const index = await chatrooms.findIndex((each:any) => each.id ===data.chatroomUuid)
+        // console.log(data)
+        // if (index>=0) {
+        //   const temp = chatrooms[index] as any
+        //   temp.user_id.map((each:any) => {
+        //    if(each.id !== data.user_id.id){
+        //       addNewMessage(data.chatroomUuid, data)
+        //     }
+        //   }
+        //     )
+          //}
+          
+          console.log(`receive => message: ${data.text}`);
+        
 
       })
     }
@@ -106,16 +134,30 @@ function ChatRoom() {
   //   updateChatroom(item.chatroomUuid, {isWindowOpen: false});
   // };
 
-
-  // BUGGGGGGGG
 // 在用户发送消息时更新 chatroom_id 对应的聊天记录
-// const addNewMessage = (chatroom_id: string, newMessage: ChatLogItem) => {
-//   setChatlog((prevChatlog) => {
-//     // const currentChatlog = prevChatlog[chatroom_id] || [];
-//     // const updatedChatlog = [...currentChatlog, newMessage];
-//     return { ...prevChatlog, [chatroom_id]: newMessage };
-//   });
-// };
+  const addNewMessage = (chatroom_id: number, newMessage: ChatLogItem) => {
+    setChatlog((prevChatlog: any) => {
+      const currentChatlog = prevChatlog[chatroom_id] || [];
+      // 不知道為什麼websocket都會發好幾次一樣的要求，所以避免重複顯示文字
+      // 自己發訊息
+      if(!newMessage.id){
+        const updatedChatlog = [...currentChatlog, newMessage];
+        return { ...prevChatlog, [chatroom_id]: updatedChatlog };
+      }else{
+        // 接收websocket訊息
+        const test = currentChatlog.filter((each:any) => each.id === newMessage.id)
+        console.log(test)
+        if(test.length===0){
+          const updatedChatlog = [...currentChatlog, newMessage];
+          return { ...prevChatlog, [chatroom_id]: updatedChatlog };
+        }else{
+          return { ...prevChatlog, [chatroom_id]: currentChatlog };
+        }
+
+      }
+      
+    });
+  };
 
 
   const handleEnterPress = (event: KeyboardEvent<HTMLInputElement>, chatroom: any) => {
@@ -128,18 +170,17 @@ function ChatRoom() {
         text: value,
         createdAt: Date.now().toString()
       }
-      //ws?.emit("onMessageSent", data );
-      //updateChatlog(chatroom.id,data )
-     // setChatlog([...chatlog, data])
-
+      addNewMessage(chatroom.id, data)
+      ws?.emit("onMessageSent", data );
+      
       console.log(`send => userUuid: ${ decodedPayload.id},chatroomUuid:${chatroom.id} message: ${value}`);
 
       event.currentTarget.value = '';
     }
   };
   useEffect(() => {
-    console.log(chatlog)
-  }, [chatlog])
+    console.log(chatrooms)
+  }, [chatrooms])
 
   return (
     <div className="fixed bottom-0 right-0 flex">

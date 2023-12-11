@@ -10,6 +10,9 @@ type ContextType = {
   setCurrentUser: (user: any) => void;
   ws: Socket| undefined;
   setWs: (ws:Socket| undefined) =>void;
+
+  friendList: any[];
+  setFriendList :(friendList: any[]) => void;
 };
 
 export const Context = createContext<ContextType | undefined>(undefined);
@@ -18,6 +21,8 @@ export const ContextProvider = ({ children }: PropsWithChildren<{}>) => {
   const [theme, setTheme] = useState<ContextType['theme']>('');
   const [content, setContent] = useState<ContextType['content']>('');
   const [currentUser, setCurrentUser] = useState<ContextType['currentUser']>('');
+  
+  const [friendList, setFriendList] = useState<ContextType['friendList']>([]);
 
   const [ws, setWs] = useState<Socket | undefined>(undefined);
 
@@ -37,7 +42,7 @@ export const ContextProvider = ({ children }: PropsWithChildren<{}>) => {
 
 
   return (
-    <Context.Provider value={{ theme, setTheme, ws, setWs, content, setContent,currentUser, setCurrentUser }}>
+    <Context.Provider value={{ theme,friendList, setFriendList, setTheme, ws, setWs, content, setContent,currentUser, setCurrentUser }}>
       {children}
     </Context.Provider>
   );

@@ -37,7 +37,11 @@ export type ContextType = {
   chatrooms: Chatroom[];
   setChatrooms: (chatrooms: Chatroom[]) => void;
   chatlog: ChatLogStore ;
-  setChatlog: (chatlog: ChatLogStore) => void;
+  // 這樣宣告就不行 TS毛病一堆:(
+  //setChatlog: (chatlog: ChatLogStore) => void;
+  setChatlog: React.Dispatch<React.SetStateAction<ChatLogStore>>;
+
+  
   addChatroom: (userName: string, userUuid: string, isWindowOpen: boolean) => void;
   openChatroomWindow: (userUuid: string,chatroomUuid: string ) => void;
   closeChatroomWindow: (userUuid: string,chatroomUuid: string) => void;
@@ -64,7 +68,7 @@ export const ChatContextProvider = ({ children }: PropsWithChildren<{}>) => {
 
 
   // 在某个地方更新 chatroom_id 对应的聊天记录
-  const updateChatlog = (chatroom_id: string, newChatLog: ChatLogItem[]) => {
+  const updateChatlog = (chatroom_id: number, newChatLog: ChatLogItem[]) => {
     console.log(chatlog)
     console.log(newChatLog)
     setChatlog((prevChatlog) => {
@@ -80,7 +84,7 @@ export const ChatContextProvider = ({ children }: PropsWithChildren<{}>) => {
       ChatService.getChatLog(parseInt(chatroomUuid))
       .then((chatLogData) => {
         const newChatLog: ChatLogItem[] = chatLogData.data;
-        updateChatlog(chatroomUuid, newChatLog);
+        updateChatlog(parseInt(chatroomUuid), newChatLog);
       }).catch(err =>{
         console.log(err)
       })

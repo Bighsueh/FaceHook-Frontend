@@ -20,7 +20,9 @@ function RightSideBar() {
   const userId = decodedPayload.id;
 
   //取得好友列表
-  const [friendList, setFriendList] = useState<any[]>([]);
+  const { friendList, setFriendList } = useContext(Context)!;
+
+  //const [friendList, setFriendList] = useState<any[]>([]);
 
   useEffect(() => {
     UserService.getCurrentFriends(userId)
