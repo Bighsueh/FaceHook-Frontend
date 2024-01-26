@@ -44,20 +44,13 @@ function App() {
                 <Route index element={<Home />} />
                 <Route path="/profile" element={<Profile/>} />
                 <Route path="/search" element={<Search/>} />
+                <Route path="/personal/:userId" element={<Personal/>} />
+                <Route path="/personal/:userId/friend" element={<Friend/>} />
               </Route>
               ):(
               <Route path="/" element={<Layout2 />}>
                 <Route index element={<Login />} />
-              </Route>
-            )}
-            {(currentUser !== null && currentUser !== '') ? (
-              <Route path="/personal/:userId" element={<Layout2 />}>
-                <Route path="/personal/:userId" element={<Personal/>} />
-                <Route path="/personal/:userId/friend" element={<Friend/>} />
-              </Route>
-            ):(
-              <Route path="/home" element={<Layout2 />}>
-                <Route index element={<Login />} />
+                <Route path="/home" element={<Login />} />
               </Route>
             )}
           </Routes>

@@ -3,9 +3,9 @@ import { useParams,useNavigate,Link } from 'react-router-dom';
 import { Context } from '../Contexts/Context'
 import UserService from "../API/User";
 import ProfileHeader from '../Component/profileHeader';
-import Navbar from '../Component/Navbar';
 import Intro from '../Component/Intro';
 import Feed from '../Component/Feed';
+import Photos from '../Component/Photo';
 import CreatePost from '../Component/createPost';
 
 interface UserProfile {
@@ -38,20 +38,20 @@ function Personal() {
   return (
 
     <>
-        <Navbar/>
+
         <ProfileHeader userId={userId} />
-        <div className="px-52 grid grid-cols-12 pt-4 gap-4 bg-fFill z-0 pb-56">
-        <div className="col-span-5 col-start-1 row-start-1 space-y-4">
-          <Intro userId={userId} />
-      
+        <div className="px-12 pt-4 gap-4 bg-fFill z-0 pb-56 md:px-28 lg:px-40  lg:grid lg:grid-cols-12 xl:px-52">
+          <div className=" col-start-1 row-start-1 space-y-4 mb-4 lg:col-span-5">
+            <Intro userId={userId} />
+            <Photos/>
+          </div>
+          <div className="flex-row row-start-1  col-start-6 space-y-4 lg:col-span-7">
+            {profile !== null && (profile.user_id.id === currentUser.id) && (
+              <CreatePost/>
+            )}
+            <Feed userId={userId}/>
+          </div>
         </div>
-        <div className="flex-row row-start-1 col-span-7 col-start-6 space-y-4">
-          {profile !== null && (profile.user_id.id === currentUser.id) && (
-            <CreatePost/>
-          )}
-          <Feed userId={userId}/>
-        </div>
-      </div>
 
     </>
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState,useContext } from 'react';
 import PostService from "../API/Post";
 import { Link,useParams } from 'react-router-dom';
 import { Context } from '../Contexts/Context';
+import Sidebox from '../Component/Sidebox';
 
 interface Comment {
   createdAt: string; 
@@ -15,6 +16,7 @@ function Search () {
 
     const [postData, setPostData] = useState<any[]>([]);
     const [userData, setUserData] = useState<any[]>([]);
+
     const [newpost, setNewpost] = useState<string>("");
     const [postId, setPostId] = useState<any>();
     const [likedPosts, setLikedPosts] = useState<{ [postId: number]: boolean }>({});
@@ -26,13 +28,11 @@ function Search () {
 
     const searchParams = new URLSearchParams(window.location.search);
     const keyword = searchParams.get('q') as string;
-    console.log(keyword)
 
 
     useEffect(() => {
         PostService.searchPosts(keyword)
             .then((data) => {
-                console.log(data);
                 console.log(data.data);
                 setUserData(data.data.users);
                 setPostData(data.data.posts);
@@ -41,7 +41,7 @@ function Search () {
             .catch((e) => {
                 console.log(e);
             });
-    }, []);
+    }, [newpost,content,shareOption]);
 
 
     const handleContent = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -176,9 +176,13 @@ function Search () {
             <></>
         ):(
         
-            <div className="ml-12 pl-12">
-                <div className='grid grid-cols-12 mt-10 ml-1'>
-                    <div className='flex-row row-start-1 col-span-7 col-start-2 space-y-4'>
+            <div className='absolute top-16 left-5 right-5 md:left-16 md:right-16 lg:left-64 lg:right-64'>
+                <div className='grid grid-cols-12 mt-10'>
+                    {/* <div className='flex-row row-start-1 col-span-7 col-start-2 space-y-4'> */}
+                    <div className='flex-row row-start-1 col-start-1 col-span-12 space-y-4 lg:col-span-8 lg:col-start-3'>
+
+                    <div className='font-bold text-2xl mb-8'>搜尋結果</div>
+                    {/* <div className='divider pb-8'></div> */}
                     {userData !== null && userData.length > 0 && userData.map((data)=>{
                         return(
 
@@ -201,14 +205,17 @@ function Search () {
                     })}
 
                     {postData !== null && postData.length > 0 && postData.map((data)=>{
-
                     const createdAt = new Date(data.createdAt).toLocaleString('zh-TW', { year: 'numeric',month: 'numeric',day: 'numeric',hour: 'numeric',minute: 'numeric',hour12: true });
                     const visibleCommentList = data.comments.slice(0, visibleComments) as Comment[];
-                    const isLiked = likedPosts[data.id] || false;
+                    const isLiked = likedPosts[data.id] || false;                  
+                    const isFriendPost =
+                        data.group === "朋友" &&
+                        data.user_id.friend.some((friend: any) => friend.freiend_user_id.id === currentUser?.id);
 
                     return(
                     <>
-                    {((data.group === "所有人")  || (data.user_id.id === currentUser.id) || (data.group === "只限本人" && data.user_id.id === currentUser.id)) && (
+                    {((data.group === "所有人")  || (data.group === "朋友" && isFriendPost) || (data.user_id.id === currentUser.id) || (data.group === "只限本人" && data.user_id.id === currentUser.id)) && 
+                    (
                         <div id="postcard">
                         <div className="w-full shadow-fb rounded bg-white border border-gray-300 p-4">
                             <div className="flex justify-between items-center">
@@ -347,19 +354,17 @@ function Search () {
 
                             {isLiked ? (
                                 <button className="w-1/2 flex items-center justify-center focus:outline-none" onClick={() => handleUnLike(data.id)}>
-                                {/* <SLike /> */}
-                                <svg className="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="#2563EB" viewBox="0 0 18 18">
-                                    <path d="M3 7H1a1 1 0 0 0-1 1v8a2 2 0 0 0 4 0V8a1 1 0 0 0-1-1Zm12.954 0H12l1.558-4.5a1.778 1.778 0 0 0-3.331-1.06A24.859 24.859 0 0 1 6 6.8v9.586h.114C8.223 16.969 11.015 18 13.6 18c1.4 0 1.592-.526 1.88-1.317l2.354-7A2 2 0 0 0 15.954 7Z"/>
-                                </svg>
-                                <span className="ml-2">Like</span>
+                                    <svg className="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="#2563EB" viewBox="0 0 18 18">
+                                        <path d="M3 7H1a1 1 0 0 0-1 1v8a2 2 0 0 0 4 0V8a1 1 0 0 0-1-1Zm12.954 0H12l1.558-4.5a1.778 1.778 0 0 0-3.331-1.06A24.859 24.859 0 0 1 6 6.8v9.586h.114C8.223 16.969 11.015 18 13.6 18c1.4 0 1.592-.526 1.88-1.317l2.354-7A2 2 0 0 0 15.954 7Z"/>
+                                    </svg>
+                                    <span className="ml-2">Like</span>
                                 </button>
                             ) : (
                                 <button className="w-1/2 flex items-center justify-center focus:outline-none" onClick={() => handleLike(data.id)}>
-                                {/* <SLike /> */}
-                                <svg className="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.008 8.714c1-.097 1.96-.45 2.792-1.028a25.112 25.112 0 0 0 4.454-5.72 1.8 1.8 0 0 1 .654-.706 1.742 1.742 0 0 1 1.65-.098 1.82 1.82 0 0 1 .97 1.128c.075.248.097.51.065.767l-1.562 4.629M4.008 8.714H1v9.257c0 .273.106.535.294.728a.99.99 0 0 0 .709.301h1.002a.99.99 0 0 0 .71-.301c.187-.193.293-.455.293-.728V8.714Zm8.02-1.028h4.968c.322 0 .64.08.925.232.286.153.531.374.716.645a2.108 2.108 0 0 1 .242 1.883l-2.36 7.2c-.288.813-.48 1.354-1.884 1.354-2.59 0-5.39-1.06-7.504-1.66"/>
-                                </svg>
-                                <span className="ml-2">Like</span>
+                                    <svg className="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.008 8.714c1-.097 1.96-.45 2.792-1.028a25.112 25.112 0 0 0 4.454-5.72 1.8 1.8 0 0 1 .654-.706 1.742 1.742 0 0 1 1.65-.098 1.82 1.82 0 0 1 .97 1.128c.075.248.097.51.065.767l-1.562 4.629M4.008 8.714H1v9.257c0 .273.106.535.294.728a.99.99 0 0 0 .709.301h1.002a.99.99 0 0 0 .71-.301c.187-.193.293-.455.293-.728V8.714Zm8.02-1.028h4.968c.322 0 .64.08.925.232.286.153.531.374.716.645a2.108 2.108 0 0 1 .242 1.883l-2.36 7.2c-.288.813-.48 1.354-1.884 1.354-2.59 0-5.39-1.06-7.504-1.66"/>
+                                    </svg>
+                                    <span className="ml-2">Like</span>
                                 </button>
                             )}
 
@@ -452,15 +457,18 @@ function Search () {
                     )
                     })}   
 
-                    {userData.length === 0 && postData.length === 0 && 
-                        <div role="alert" className="alert w-11/12">
+                    {userData.length === 0 && postData.length === 0  && (
+                        <div role="alert" className="alert w-full">
                             <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                             <span>{`找不到符合 ${keyword} 的結果`}</span>
                         </div>
-                    }
-
+                    )}
+                    
                     </div>
                 </div>
+
+                <Sidebox/>
+
             </div>
         
         )}
