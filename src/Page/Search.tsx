@@ -33,8 +33,33 @@ function Search () {
     useEffect(() => {
         PostService.searchPosts(keyword)
             .then((data) => {
-                console.log(data.data);
                 setUserData(data.data.users);
+
+                const updatedLikedPosts: { [postId: number]: boolean } = {};
+                const updatedLikedComments: { [postId: number]: boolean } = {};
+        
+                console.log("你好")
+                console.log(data.data);
+
+                data.data.posts.forEach((post: any) => {
+                    post.like.forEach((like: any) => {
+                    if (like.user_id.id === currentUser?.id) {
+                        updatedLikedPosts[post.id] = true;
+                    }
+                    });
+                    post.comments.forEach((comment: Comment) => {
+                        comment.like.forEach((commentLike: any) => {
+                          if (commentLike.user_id.id === currentUser?.id) {
+                            updatedLikedComments[comment.id] = true;
+                          }
+                        });
+                    });
+                });
+                // 更新 likedPosts
+                setLikedPosts(updatedLikedPosts);
+                setLikedComments(updatedLikedComments);
+
+
                 setPostData(data.data.posts);
                 setIsLoading(false);
             })
@@ -371,7 +396,6 @@ function Search () {
 
 
                             <button className="w-1/2 flex items-center justify-center focus:outline-none">
-                                {/* <CommentButton /> */}
                                 <svg className="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 18">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 5h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-2v3l-4-3H8m4-13H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2v3l4-3h4a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1Z"/>
                                 </svg>
@@ -422,7 +446,7 @@ function Search () {
                                             </div>
                                             </div>
                                             <div className='flex'>
-                                                <button onMouseOver={()=>{handleId(comment.id)}} onClick={()=>{handleCommentLike(postId)}}><p className='text-xs mt-0.5 me-3 ml-1'>Like</p></button>
+                                                <button onMouseOver={()=>{handleId(comment.id)}} onClick={()=>{handleCommentLike(postId)}}><p className='text-xs mt-0.5 me-3 ml-1'>{likedComments[comment.id] ? "Unlike" : "Like"}</p></button>
                                                 <div className="text-xs mt-0.5 text-gray-500">{commentCreateAt}</div>
                                             </div>
                                         </div>
