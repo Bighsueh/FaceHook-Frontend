@@ -191,22 +191,22 @@ export default function CreatePost() {
                   ></textarea>
                   </div>
                   <div className='flex'>
-                      <button className="inline-flex items-center justify-center w-10 h-10 mr-2  ml-2 text-indigo-100 transition-colors duration-150 bg-blue-200 rounded-full focus:shadow-outline hover:bg-indigo-800"
+                      <button className="inline-flex items-center justify-center w-10 h-10 mr-2  ml-2 text-indigo-100 transition-colors duration-150 bg-mistblue rounded-full focus:shadow-outline hover:bg-indigo-800"
                       onClick={handleButtonClick}>
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" className="bi bi-image" viewBox="0 0 16 16">
                               <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
                               <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/>
                           </svg>                    
                       </button>
-                      <button className="inline-flex items-center justify-center w-10 h-10 mr-2 text-indigo-100 transition-colors duration-150 bg-blue-200 rounded-full focus:shadow-outline hover:bg-indigo-800">
+                      <button className="inline-flex items-center justify-center w-10 h-10 mr-2 text-indigo-100 transition-colors duration-150 bg-mistblue rounded-full focus:shadow-outline hover:bg-indigo-800">
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" className="bi bi-paperclip" viewBox="0 0 16 16">
                               <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/>
                           </svg>                  
                       </button>
-                      <form method="dialog" className='ms-auto'>
+                      <form method="dialog" className='ms-auto '>
                           <button 
                                 type="submit" 
-                                className="ms-auto items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-200 hover:bg-blue-800"
+                                className="bg-mistblue ms-auto items-center py-2.5 px-4 text-xs font-medium text-center text-white rounded-lg focus:ring-4 focus:ring-blue-200 hover:bg-blue-800"
                                 onClick={() => {
                                     handleSubmitPost();
                                     uploadImages();

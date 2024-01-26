@@ -143,7 +143,7 @@ export default function ProfileHeader({userId}:any) {
   return (
     <>
     {profile !== null && (
-      <div className="px-44 shadow">
+      <div className="px-12 shadow mt-16 mb-2 md:px-22 lg:px-30 xl:px-40">
         <div className="relative h-96 rounded-b flex justify-center">
           <img
             src="https://picsum.photos/id/1018/3000"

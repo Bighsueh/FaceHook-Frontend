@@ -72,7 +72,7 @@ function RightSideBar() {
 
   return (
 
-    <div className='flex flex-col pt-6 w-64 bg-lightblue h-full w-full px-4 py-4'>
+    <div className='flex flex-col pt-6 w-64 bg-lightblue h-full w-full py-4 lg:px-4'>
       {/* Sponsored Area Begin*/}
       <div className='my-2 mx-2 flex font-bold'>Sponsored</div>
       <div className='flex rounded-lg'>

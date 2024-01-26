@@ -3,7 +3,6 @@ import { useParams,Link } from 'react-router-dom';
 import { Context } from '../Contexts/Context'
 import UserService from "../API/User";
 import ProfileHeader from '../Component/profileHeader';
-import Navbar from '../Component/Navbar';
 
 
 interface UserProfile {
@@ -84,15 +83,16 @@ function Friend() {
   return (
 
     <>
-        <Navbar/>
         <ProfileHeader userId={userId} />
-        <div className='mt-6 ml-1 px-52 font-bold text-xl'>所有朋友</div>
-        <div className="mt-1 px-52 grid grid-cols-12 pt-4 gap-4 bg-fFill z-0 pb-16">
+        <div className='mt-6 ml-1 px-12 font-bold text-xl md:px-28 lg:px-40 xl:px-52'>所有朋友</div>
+        <div className="mt-1 px-12 pt-4 gap-4 bg-fFill z-0 pb-16 md:px-28 lg:px-40 lg:grid lg:grid-cols-12 xl:px-52">
 
                 { friend !== null && friend.map( (data) => {
                     const counts = commonFriendsMap[data.freiend_user_id.id]?.count || 0;
+                    console.log("在這裡")
+                    console.log(data)
                     return(
-                        <div className='col-span-6 mb-1'>
+                        <div className='col-span-6 mb-2'>
                             <div className=" w-full shadow-fb rounded bg-white border border-gray-300 p-3">
                                 <div className="flex space-x-2">
                                 <img
@@ -103,13 +103,19 @@ function Friend() {
                                 <Link 
                                     to={`/personal/${data.freiend_user_id.id}`} 
                                     className="px-3 py-3 w-full"
-                                >
+                                >                                   
+                                    {data.freiend_user_id.id === currentUser.id && (data.profile.school === "") && (
+                                    <div className='h-2'></div>
+                                    )}
                                     <b>{data.freiend_user_id.username}</b>
                                     {data.freiend_user_id.id !== currentUser.id && (
                                     <div className='text-sm'>{counts} 位共同朋友</div>
                                     )}
-                                    {data.freiend_user_id.id === currentUser.id && (
+                                    {data.freiend_user_id.id === currentUser.id && (data.profile.school !== "") && (
                                     <div className='text-sm'>{data.profile.school}</div>
+                                    )}
+                                    {data.freiend_user_id.id === currentUser.id && (data.profile.school === "") && (
+                                    <div className='h-3'></div>
                                     )}
                                 </Link>
                                 </div>
@@ -122,8 +128,8 @@ function Friend() {
         </div>
         {Number(userId) !== currentUser.id && (
           <>
-            <div className='mt-6 ml-1 px-52 font-bold text-xl'>共同朋友</div>
-            <div className="mt-1 px-52 grid grid-cols-12 pt-4 gap-4 bg-fFill z-0 pb-32">
+            <div className='mt-6 ml-1 px-12 font-bold text-xl md:px-28 lg:px-40 xl:px-52'>共同朋友</div>
+            <div className="mt-1 px-12 pt-4 gap-4 bg-fFill z-0 pb-32 md:px-28 lg:px-40 lg:grid lg:grid-cols-12 xl:px-52">
 
                 { commonFriends !== null && commonFriends.map( (data) => {
 
